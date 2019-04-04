@@ -23,8 +23,6 @@ RegisterCommand('craft', function(source, args, rawCommand)
     for k, v in pairs(recipies) do
         if (args[1] == v.name) then
             if (vRPUtilS.hasItem(v.items[1].item, v.items[1].amount)) then
-                print(v.result[1].item)
-                print(v.result[1].amount)
                 vRPUtilS.giveItem(v.result[1].item, v.result[1].amount)
                 break
             end

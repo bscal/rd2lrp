@@ -25,5 +25,5 @@ function vRPjobs.completeDelivery(distance)
     local user = vRP.users_by_source[source]
     local amount = 50 + math.floor(distance / 25)
     user:giveWallet(amount)
-    vRP.EXT.Base.remote._notify(user.source, "You recieved "..amount.." for the delivery")
+    vRP.EXT.Base.remote._notify(user.source, "You recieved "..amount.."$ for the delivery")
 end

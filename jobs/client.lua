@@ -41,7 +41,6 @@ Citizen.CreateThread(function()
         local ped = GetPlayerPed(-1)
         for k, v in pairs(deliveryJob) do
             DrawMarker(1, v.x, v.y, v.z - 1,0,0,0,0,0,0,0.8,0.8,0.8, 55, 55, 255, 155,0)
-            --print(vehicle)
             local pos = GetEntityCoords(ped, true)
             local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
             if (dist < 2.0) and not isDeliveryJob then

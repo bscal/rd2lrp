@@ -11,6 +11,9 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
 
+        -- Reduce Vehicle Density
+        SetVehicleDensityMultiplierThisFrame(0.7)
+
         -- Online Players
         if (IsControlJustPressed(0,214)) then
             showPlayerList = not showPlayerList
@@ -72,6 +75,7 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         for k, v in pairs(markers) do
+            -- draw hidden markers
             DrawMarker(1, v.x, v.y, v.z - 1,0,0,0,0,0,0,0.8,0.8,0.8, 255, 55, 55, 155,0)
         end
     end

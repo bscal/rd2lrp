@@ -21,6 +21,7 @@ Citizen.CreateThread(function()
                     local x,y,z = table.unpack(GetEntityCoords(ped, true))
                     local streethash = GetStreetNameAtCoord(x, y, z)
                     local street = GetStreetNameFromHashKey(streethash)
+                    vRPdispatchS._ping(x, y, z, 120)
                     TriggerEvent("DispatchRobbery", ped, "Pedestrian robbery", "None", street)
                 end
             end)
@@ -32,7 +33,6 @@ Citizen.CreateThread(function()
 end)
 
 RegisterCommand('rob', function()
-    print("started robbing")
     local closestPlayer, distance = GetClosestPlayer()
     if closestPlayer ~= nil and DoesEntityExist(GetPlayerPed(closestPlayer)) then
         if distance -1 and distance < 2 then

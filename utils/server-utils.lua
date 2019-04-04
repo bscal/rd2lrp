@@ -46,8 +46,6 @@ end
 
 function vRPUtils.giveItem(item, amount)
     local user = vRP.users_by_source[source]
-    print(item)
-    print(amount)
     user:tryGiveItem(item, amount, false, false)
 end
 

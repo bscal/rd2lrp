@@ -1,7 +1,7 @@
 local VoiceMode = {
 	{ dist = 3, message = "Voice range set on 3 meters." },
-	{ dist = 8, message = "Voice range set on 8 meters." },
-	{ dist = 14, message = "Voice range set on 14 meters." },
+	{ dist = 12, message = "Voice range set on 8 meters." },
+	{ dist = 21, message = "Voice range set on 14 meters." },
 	{ veh = true, dist = 4, func = function(ped) return IsPedInAnyVehicle(ped) end, message = "Voice range set to your vehicle." },
 }
 
