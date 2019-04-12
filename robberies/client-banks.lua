@@ -71,10 +71,10 @@ local banks = {
 	}]]
 }
 local robColors = {r = 255, g = 55, b = 0, a = 125}
-local CONST_THERMITE_TIME = 10
-local CONST_THERMITE_FIRE = 90
-local CONST_ROB_BANK_TIME = 60 * 4
-local CONST_BANK_COOLDOWN = 60 * 30
+local CONST_THERMITE_TIME = 10 -- seconds
+local CONST_THERMITE_FIRE = 90 -- seconds
+local CONST_ROB_BANK_TIME = 60 * 5 --seconds
+local CONST_BANK_COOLDOWN = 60 * 30 --minutes
 
 local rob_progress = 0
 local isBankRobbing = false

@@ -6,10 +6,10 @@ Proxy.addInterface("dispatch", vRPdispatch)
 
 isCop = false
 isEMS = false
-deadAlert = false
+deadAlert = true
 gsr = {};
 
-AddEventHandler('playerSpawned', function()
+AddEventHandler('cop:revivePlayer', function()
     deadAlert = true
 end)
 
@@ -135,27 +135,6 @@ Citizen.CreateThread(function()
     end
 end)
 
-function hotwire(veh)
-    SetVehicleNeedsToBeHotWired(veh, true);
-    Citizen.CreateThread(function()
-        local hotwire = 60
-        while true do
-            Citizen.Wait(1000)
-            SetVehicleEngineOn(veh, false, true, false)
-            if (hotwire < 1) then
-                SetVehicleEngineOn(veh, true, true, false)
-                break
-            end
-            hotwire = hotwire - 1
-            TriggerEvent('chat:addMessage', {
-                color = {255, 255, 255},
-                multiline = true,
-                args = {"How wiring 60/"..hotwire}
-            })
-        end
-    end)
-end
-
 function vRPdispatch.ping(x, y, z, time)
     if isCop or isEMS then
         local blip = AddBlipForCoord(x, y, z)
@@ -193,7 +172,7 @@ end)
 
 RegisterNetEvent("DispatchPing")
 AddEventHandler("DispatchPing", function(x, y, z, time)
-    vRPdispatchS.ping(x, y, z, 120)
+    vRPdispatchS._ping(x, y, z, 120)
 end)
 
 

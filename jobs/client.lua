@@ -1,12 +1,11 @@
-vRPclient = Tunnel.getInterface("vRP","jobs")
-vRPjobsS = Tunnel.getInterface("jobs","jobs")
-
-vRPjobs = {}
+local vRPclient = Tunnel.getInterface("vRP","jobs")
+local vRPjobsS = Tunnel.getInterface("jobs","jobs")
+local vRPjobs = {}
 Tunnel.bindInterface("jobs", vRPjobs)
 Proxy.addInterface("jobs", vRPjobs)
 
-local deliveryJob = {{x=-425.2098083496,y=6128.8266601562,z=31.475679397584,name = "Delivery Job", blip = 67, color = 21},
-                    {x=61.271408081054,y=114.32566070556,z=79.089897155762,name = "Delivery Job", blip = 67, color = 21}}
+local deliveryJob = {{x=-425.2098083496,y=6128.8266601562,z=31.475679397584,name="Delivery Job",blip=67,color=21},
+                    {x=61.271408081054,y=114.32566070556,z=79.089897155762,name="Delivery Job",blip=67,color=21},}
 
 local deliveryLocations = {{x=-290.15536499024,y=-1026.2470703125,z=30.379957199096},
                             {x=642.75909423828,y=276.9309387207,z=103.19207763672},
@@ -22,19 +21,8 @@ local vehicle = nil
 local currentDelivery = nil
 local deliveryDist = 0
 
-
-
 Citizen.CreateThread(function()
-    
-    for k, v in pairs(deliveryJob) do
-        local blip = AddBlipForCoord(v.x, v.y, v.z)
-        SetBlipSprite(blip, v.blip)
-        SetBlipColour(blip, v.color)
-        SetBlipAsShortRange(blip, true)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(v.name)
-        EndTextCommandSetBlipName(blip)
-    end
+    initBlips(deliveryJob)
 
     while true do
         Citizen.Wait(0)
@@ -100,6 +88,20 @@ function vRPjobs.newDelivery(pos)
     currentDelivery = deliveryLocations[index]
     deliveryDist = Vdist(pos.x, pos.y, pos.z, currentDelivery.x, currentDelivery.y, currentDelivery.z)
     SetNewWaypoint(currentDelivery.x, currentDelivery.y)
+end
+
+function initBlips(jobtable)
+    for k, v in pairs(jobtable) do
+        if not v.hidden then 
+            local blip = AddBlipForCoord(v.x, v.y, v.z)
+            SetBlipSprite(blip, v.blip)
+            SetBlipColour(blip, v.color)
+            SetBlipAsShortRange(blip, true)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(v.name)
+            EndTextCommandSetBlipName(blip)
+        end
+    end
 end
 
 function ShowInfoTextJobs(text, x, y)

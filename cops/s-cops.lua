@@ -200,7 +200,7 @@ function getCopData(userid, cid)
 end
 
 function isCopId(userid)
-    local user = vRP.users[userid]
+    local user = vRP.users_by_source[userid]
     local cid = user.cid
     local results = exports['GHMattiMySQL']:QueryResult("SELECT * FROM cops WHERE uid=@uid AND cid=@cid", {uid = userid, cid = cid})
     if (#results < 1) then

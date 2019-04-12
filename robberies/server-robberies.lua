@@ -8,7 +8,6 @@ local BASE_STORE_ROB_MONEY = 10
 local CONST_BASE_BANK_ROB_MONEY = 1000
 
 function vRPRob.robMoney(victimId)
-    print("money")
     local user = vRP.users_by_source[source]
     local victim = vRP.users_by_source[victimId]
 
@@ -22,11 +21,30 @@ function vRPRob.robMoney(victimId)
 end
 
 function vRPRob.robInventory(victimId)
-    print("invs")
     local user = vRP.users_by_source[source]
     local victim = vRP.users_by_source[victimId]
 
-    user:openChest(victim.source, 30)
+    vRProbC.EnableGui(user.source, true, victim.source, victim.identity.firstname, user:getInventory(), victim:getInventory())
+    vRProbC.updateWeightUI(user.source, user:getInventoryWeight(), user:getInventoryMaxWeight(), victim:getInventoryWeight(), victim:getInventoryMaxWeight())
+end
+
+function vRPRob.showInventory()
+    local user = vRP.users_by_source[source]
+    vRProbC.EnableInvGui(user.source, user:getInventory(), user:getInventoryWeight(), user:getInventoryMaxWeight())
+end
+
+function vRPRob.takeItem(openedPlayerID, str)
+    local user = vRP.users_by_source[source]
+    local victim = vRP.users_by_source[openedPlayerID]
+
+    if victim:tryTakeItem(str[1], tonumber(str[3]), false, false) then
+        user:tryGiveItem(str[1], tonumber(str[3]), false, false)
+
+        vRProbC.updateInventoryUI(user.source, user:getInventory(), victim:getInventory())
+        vRProbC.updateInventoryUI(victim.source, victim:getInventory(), user:getInventory())
+        vRProbC.updateWeightUI(user.source, user:getInventoryWeight(), user:getInventoryMaxWeight(), victim:getInventoryWeight(), victim:getInventoryMaxWeight())
+        vRProbC.updateWeightUI(victim.source, victim:getInventoryWeight(), victim:getInventoryMaxWeight(), user:getInventoryWeight(), user:getInventoryMaxWeight())
+    end
 end
 
 function vRPRob.robStore()
@@ -63,8 +81,8 @@ end
 function vRPRob.robBank()
     local user = vRP.users_by_source[source]
     math.randomseed(os.time())
-    local rand1 = math.random(500, 1750)
-    local rand2 = math.random(750, 1000)
+    local rand1 = math.random(750, 1750)
+    local rand2 = math.random(1000, 1500)
     local amount = CONST_BASE_BANK_ROB_MONEY + rand1 + rand2
     user:giveWallet(amount)
     TriggerClientEvent("pNotify:SendNotification", user.source, {

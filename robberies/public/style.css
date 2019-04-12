@@ -1,0 +1,89 @@
+.listl {
+    right: 60%;
+    top: 25%;
+    position: absolute;
+    list-style-type: none;
+    display: inline;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 0px;
+    text-align: right;
+}
+
+.listr {
+    left: 60%;
+    top: 25%;
+    position: absolute;
+    list-style-type: none;
+    display: inline;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 0px;
+}
+
+.slot {
+    margin: 4px;
+    padding: 8px;
+    background: rgba(.4, .4, .4, .4);
+    border: 0px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 32;
+    color: whitesmoke;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.nameplater {
+    left: 60%;
+    top: 10%;
+    font-size: 36;
+    position: absolute;
+}
+
+.nameplatel {
+    right: 60%;
+    top: 10%;
+    font-size: 36;
+    position: absolute;
+}
+
+#yourWeight {
+    right: 60%;
+    top: 15%;
+    font-size: 32;
+}
+
+#otherWeight {
+    left: 60%;
+    top: 15%;
+    font-size: 32;
+}
+
+.inline {
+    list-style-type: none;
+    display: inline;
+}
+
+#cursor {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 999999;
+    display: none;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: none;
+}
+
+ul {height:75%; width:18%;}
+ul {overflow:hidden; overflow-y:scroll;}
+
+ul::-webkit-scrollbar { width: 0 !important }

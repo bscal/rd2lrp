@@ -38,6 +38,7 @@ cfg.edibles = {
 
   -- drugs
   blunt = {"drug", {armour = 25, high = 25}, "Blunt","A blunt.", 0.1},
+  cocaine = {"drug", {runspeed = {m=1.25,t=30}, high = 25}, "Cocaine","Cocaine.", 0.1},
   pills = {"drug", {health = 25}, "Pills","A simple medication.", 0.1}
 }
 

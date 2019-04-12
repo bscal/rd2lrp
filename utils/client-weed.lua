@@ -6,7 +6,11 @@ Tunnel.bindInterface("utilsC", vRPUtil)
 Proxy.addInterface("utilsC", vRPUtil)
 
 local weedLocation = {x=2224.19091796875,y=5576.9423828125,z=53.8465042114258}
-local recipies = {{name="blunt", items={{item="weed", amount=3}}, result={{item="edible|blunt", amount=1}}},}
+local recipies = {
+    {name="blunt", items={{item="weed", amount=5}}, result={{item="edible|blunt", amount=1}}},
+    {name="brick", items={{item="weed", amount=25}}, result={{item="weed_brick", amount=1}}},
+    {name="cocaine", loc={x=1392.245727539,y=3606.6770019532,z=38.941890716552},items={{item="wammo|WEAPON_PETROLCAN", amount=50},{item="coca_leaf", amount=10}}, result={{item="edible|cocaine", amount=1}}},
+}
 
 Citizen.CreateThread(function()
     Citizen.Wait(0)
@@ -19,17 +23,19 @@ Citizen.CreateThread(function()
     EndTextCommandSetBlipName(blip)
 end)
 
+-- Craft script
+
 RegisterCommand('craft', function(source, args, rawCommand)
     for k, v in pairs(recipies) do
         if (args[1] == v.name) then
-            if (vRPUtilS.hasItem(v.items[1].item, v.items[1].amount)) then
-                vRPUtilS.giveItem(v.result[1].item, v.result[1].amount)
-                break
+            if loc then
+                local coords = GetEntityCoords(GetPlayerPed(-1), false)
+                local dist = Vdist(v.loc.x, v.loc.y, v.loc.z, coords.x, coords.y, coords.z)
+                if not dist < 2 then
+                    return false;
+                end
             end
+            vRPUtilS._craftItem(v.items, v.result)
         end
     end
-end)
-
-RegisterCommand('search', function(source, args, rawCommand)
-    vRPUtilS.openInv(tonumber(args[1]))
 end)

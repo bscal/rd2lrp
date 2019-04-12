@@ -43,8 +43,9 @@ local function define_items(self)
     local etype = self.types[edible.type]
 
     -- consume
-    if user:tryTakeItem(fullid, 1, nil, true) then
-      if user.edible_action:perform(self.cfg.action_delay) then
+    
+     if user.edible_action:perform(self.cfg.action_delay) then
+	  if user:tryTakeItem(fullid, 1, nil, true) then
         -- menu update
         local namount = user:getItemAmount(fullid)
         if namount > 0 then
@@ -64,9 +65,9 @@ local function define_items(self)
             effect(user, value)
           end
         end
-      else
-        vRP.EXT.Base.remote._notify(user.source, lang.common.must_wait({user.edible_action:remaining()}))
-      end
+	  end
+    else
+      vRP.EXT.Base.remote._notify(user.source, lang.common.must_wait({user.edible_action:remaining()}))
     end
   end
 

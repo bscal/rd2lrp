@@ -131,8 +131,11 @@ end)
 local fullyLoaded = false
 
 AddEventHandler('playerSpawned', function()
-    reviveWait = 120
     fullyLoaded = true
+end)
+
+AddEventHandler('cop:revivePlayer', function()
+    reviveWait = 120
 end)
 
 --Paychecks
@@ -794,7 +797,8 @@ function revivePed(ped)
     --TriggerEvent('playerSpawned', playerPos.x, playerPos.y, playerPos.z, 90.0)
     NetworkResurrectLocalPlayer(playerPos, true, true, false)
 	SetPlayerInvincible(ped, false)
-	ClearPedBloodDamage(ped)
+    ClearPedBloodDamage(ped)
+    TriggerEvent('cop:revivePlayer')
 end
 
 function ShowInfoRevive(text)
@@ -812,7 +816,8 @@ function respawnPed(ped, coords)
 
 	SetPlayerInvincible(ped, false) 
 	--TriggerEvent('playerSpawned', coords.x, coords.y, coords.z, 90.0)
-	ClearPedBloodDamage(ped)
+    ClearPedBloodDamage(ped)
+    TriggerEvent('cop:revivePlayer')
 end
 
 function Draw3DText(x, y, z, text)

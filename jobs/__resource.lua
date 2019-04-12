@@ -17,5 +17,6 @@ files {
     "lib/IDManager.lua",
     "lib/ActionDelay.lua",
     "lib/Luang.lua",
-    "client.lua"
+    "client.lua",
+    "client-jobs.lua",
 }

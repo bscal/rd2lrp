@@ -77,27 +77,6 @@ function ownedVehicle(ped)
     end
 end
 
-function hotwire(veh)
-    SetVehicleNeedsToBeHotWired(veh, true);
-    Citizen.CreateThread(function()
-        local hotwire = 60
-        while true do
-            Citizen.Wait(1000)
-            SetVehicleEngineOn(veh, false, true, false)
-            if (hotwire < 1) then
-                SetVehicleEngineOn(veh, true, true, false)
-                break
-            end
-            hotwire = hotwire - 1
-            TriggerEvent('chat:addMessage', {
-                color = {255, 255, 255},
-                multiline = true,
-                args = {"How wiring 60/"..hotwire}
-            })
-        end
-    end)
-end
-
 function dispatch(playerid, msg, description, location)
     vRPCopsS.dispatch({playerid, msg, description, location})
 end

@@ -57,7 +57,7 @@ cfg.hidden_transformers = {
       title="Weed field", -- menu name
       color={0,200,0}, -- color
       max_units=50,
-      units_per_minute=3,
+      units_per_minute=5,
       position={2224.19091796875,5576.9423828125,53.8465042114258},
       radius=10, height=1.8, -- area
       recipes = {
@@ -72,7 +72,87 @@ cfg.hidden_transformers = {
         }
       }
     },
+	positions = {
+      {2224.19091796875,5576.9423828125,53.8465042114258},
+    }
   },
+    ["Weed field"] = {
+    def = {
+      title="Weed field", -- menu name
+      color={0,200,0}, -- color
+      max_units=50,
+      units_per_minute=5,
+      position={1902.1795654296,4858.0366210938,46.738380432128},
+      radius=10, height=1.8, -- area
+      recipes = {
+        ["Harvest"] = { -- action name
+          description="Harvest weed.", -- action description
+          reagents={}, -- items taken per unit
+          products={ -- items given per unit
+            items = {
+              ["weed"] = 5
+            }
+          }
+        }
+      }
+    },
+	positions = {
+      {1902.1795654296,4858.0366210938,46.738380432128},
+    }
+  },
+    ["Coca leaf exchange"] = {
+    def = {
+      title="Coca leaf exchange", -- menu name
+      color={0,200,0}, -- color
+      max_units=20,
+      units_per_minute=2,
+      position={2576.3547363282,4650.3520507812,34.064353942872},
+      radius=6, height=1.8, -- area
+      recipes = {
+        ["Harvest"] = { -- action name
+          description="Harvest weed.", -- action description
+          reagents={
+			money = 15
+		  }, -- items taken per unit
+          products={ -- items given per unit
+            items = {
+              ["coca_leaf"] = 1
+            }
+          }
+        }
+      }
+    },
+	positions = {
+      {2576.3547363282,4650.3520507812,34.064353942872},
+    }
+  },
+    ["Coca leaf exchange"] = {
+    def = {
+      title="Coca leaf exchange", -- menu name
+      color={0,200,0}, -- color
+      max_units=20,
+      units_per_minute=2,
+      position={2194.591796875,5599.32421875,53.714111328125},
+      radius=6, height=1.8, -- area
+      recipes = {
+        ["Harvest"] = { -- action name
+          description="Harvest weed.", -- action description
+          reagents={
+			money = 15
+		  }, -- items taken per unit
+          products={ -- items given per unit
+            items = {
+              ["coca_leaf"] = 1
+            }
+          }
+        }
+      }
+    },
+	positions = {
+      {2194.591796875,5599.32421875,53.714111328125},
+    }
+  },
+  
   --[[
   ["Weed processing"] = {
     def = {
@@ -144,7 +224,7 @@ cfg.hidden_transformers = {
 }
 
 -- time in minutes before hidden transformers are relocated (min is 5 minutes)
-cfg.hidden_transformer_duration = 5*24*60 -- 5 days
+cfg.hidden_transformer_duration = 1 -- 5 days
 
 -- configure the information reseller (can sell hidden transformers positions)
 cfg.informer = {
@@ -154,6 +234,7 @@ cfg.informer = {
     --["Weed resale"] = 25000
   },
   positions = {
+	{0,0,0}
     --{1821.12390136719,3685.9736328125,34.2769317626953},
     --{1804.2958984375,3684.12280273438,34.217945098877}
   },

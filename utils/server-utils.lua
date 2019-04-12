@@ -39,19 +39,31 @@ function vRPUtils.sendRecentAds(msg)
     end
 end
 
-function vRPUtils.hasItem(item, amount)
+function vRPUtils.hasItem(item, amount, ritem, ramount)
     local user = vRP.users_by_source[source]
-    return user:tryTakeItem(item, amount, false, false)
+    if user:tryTakeItem(item, amount, false, false) then
+        user:tryGiveItem(ritem, ramount, false, false)
+        return true
+    end
+    return false
 end
 
-function vRPUtils.giveItem(item, amount)
+function vRPUtils.craftItem(item, ritem)
     local user = vRP.users_by_source[source]
-    user:tryGiveItem(item, amount, false, false)
-end
 
-function vRPUtils.openInv(targetSource)
-    local user = vRP.users_by_source[source]
-    local target = vRP.users_by_source[targetSource]
+    for k, v in pairs(item) do
+        if not user:tryTakeItem(v.item, v.amount, true, false) then
+            vRP.EXT.Base.remote._notify(user.source, "You are missing "..v.amount.." "..v.item)
+            return false;
+        end
+    end
 
-    user:openChest(target.source, 30)
+    for k, v in pairs(item) do
+        user:tryTakeItem(v.item, v.amount, false, false)
+    end
+
+    for k, v in pairs(ritem) do
+        user:tryGiveItem(v.item, v.amount, false, false)
+    end
+    return true
 end

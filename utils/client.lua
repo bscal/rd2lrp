@@ -5,6 +5,16 @@ vRPUtil = {}
 Tunnel.bindInterface("utilsC", vRPUtil)
 Proxy.addInterface("utilsC", vRPUtil)
 
+local Utils = class("Utils", vRP.Extension)
+Utils.User = class("User")
+
+Utils.event = {}
+function Utils.event:playerSpawn(user, first_spawn)
+    local stamina = (1-GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
+    vRP.EXT.GUI:setProgressBar("bscal:stamina","minimap","",255,90,155,stamina)
+end
+
+
 local showPlayerList = false
 
 Citizen.CreateThread(function()
@@ -65,10 +75,11 @@ markers = {}
 RegisterNetEvent("DrawHiddenMarker")
 AddEventHandler("DrawHiddenMarker", function(x, y, z)
     for k, v in pairs(markers) do
-        if not (v.x == x) then
-            table.insert( markers, {x = x, y = y, z = z} )
+        if v.x == x then
+            return
         end
     end
+    table.insert( markers, {x = x, y = y, z = z} )
 end)
 
 Citizen.CreateThread(function()
@@ -78,6 +89,14 @@ Citizen.CreateThread(function()
             -- draw hidden markers
             DrawMarker(1, v.x, v.y, v.z - 1,0,0,0,0,0,0,0.8,0.8,0.8, 255, 55, 55, 155,0)
         end
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(20)
+        local stamina = (1-GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
+        vRP.EXT.GUI:setProgressBarValue("bscal:stamina", stamina)
     end
 end)
 
@@ -91,7 +110,7 @@ local highness
 RegisterNetEvent('applyHigh')
 AddEventHandler('applyHigh', function(value)
     ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 2.0)
-    Citizen.SetTimeout(15000, function() 
+    Citizen.SetTimeout(20000, function() 
         ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 0.0)
     end)
 end)
@@ -99,12 +118,14 @@ end)
 RegisterNetEvent('runSpeed')
 AddEventHandler('runSpeed', function(value)
     local multiplier = value.m
+    print(multiplier)
     if multiplier > 1.49 then
         multiplier = 1.49
     end
-    SetRunSprintMultiplierForPlayer(GetPlayerPed(-1), multiplier)
+    SetRunSprintMultiplierForPlayer(PlayerId(), multiplier)
     Citizen.SetTimeout(value.t * 1000, function() 
-        SetRunSprintMultiplierForPlayer(GetPlayerPed(-1), -multiplier)
+        print("fading")
+        SetRunSprintMultiplierForPlayer(PlayerId(), 1.0)
     end)
 end)
 
@@ -160,3 +181,5 @@ Citizen.CreateThread(function()
         end
     end
 end)
+
+vRP:registerExtension(Utils)

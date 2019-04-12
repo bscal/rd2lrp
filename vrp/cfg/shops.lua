@@ -28,7 +28,8 @@ cfg.shop_types = {
     ["edible|donut"] = 2,
     ["edible|tacos"] = 8,
     ["edible|sandwich"] = 20,
-    ["edible|kebab"] = 20
+    ["edible|kebab"] = 20,
+	["repairkit"] = 200,
   },
   ["hidden_explosive"] = {
     _config = {},
@@ -45,7 +46,7 @@ cfg.shop_types = {
   },
   ["tools"] = {
     _config = {map_entity = {"PoI", {blip_id = 544, blip_color = 47, marker_id = 1}}},
-    ["repairkit"] = 50,
+    ["repairkit"] = 200,
     ["money_binder"] = 1
   },
   ["TCG"] = { -- need vRP-TCG extension
@@ -215,10 +216,10 @@ cfg.shop_types = {
     _config = {map_entity = {"PoI", {blip_id = 110, blip_color = 1, marker_id = 1}}},
     ["wbody|WEAPON_MARKSMANPISTOL"] = 1250,
     ["wbody|WEAPON_PISTOL"] = 1750,
-	["wbody|WEAPON_PETROLCAN"] = 250,
+	["wbody|WEAPON_PETROLCAN"] = 200,
     ["wammo|WEAPON_MARKSMANPISTOL"] = 1,
     ["wammo|WEAPON_PISTOL"] = 1,
-	["wammo|WEAPON_PETROLCAN"] = 2,
+	["wammo|WEAPON_PETROLCAN"] = 3,
 
     ["wbody|WEAPON_DAGGER"] = 300,
     ["wbody|WEAPON_HAMMER"] = 300,

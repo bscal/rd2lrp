@@ -1,6 +1,6 @@
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(200)
+        Citizen.Wait(50)
        
         if GetPlayerWantedLevel(PlayerId()) ~= 0 then
             SetPlayerWantedLevel(PlayerId(), 0, false)

@@ -106,8 +106,8 @@ cfg.transformers = {
   {
     title="Gold deposit",
     color={255,255,0},
-    max_units=750,
-    units_per_minute=4,
+    max_units=500,
+    units_per_minute=5,
     position={123.05940246582,3336.2939453125,30.7280216217041},
     radius=30, height=8,
     recipes = { 
@@ -178,14 +178,14 @@ cfg.transformers = {
     radius=8,height=1.5,
     recipes = {
       ["Sell gold"] = {
-        description="Sell gold ingots, 1000$ per ingot.",
+        description="Sell gold ingots, 2000$ per ingot.",
         reagents={
           items = {
             ["gold_ingot"] = 1
           }
         },
         products={
-          money = 2000
+          money = 1750
         }
       }
     }

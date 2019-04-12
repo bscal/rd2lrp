@@ -18,7 +18,10 @@ cfg.items = {
   ["weed"] = {"Weed leaf", "", nil, 0.05},
   ["weed_processed"] = {"Weed processed", "", nil, 0.15},
   ["demineralized_water"] = {"Demineralized water (1L)","",nil,1},
-  ["thermite"] = {"Thermite","",nil,2}
+  ["thermite"] = {"Thermite","",nil,2},
+  ["weed_brick"] = {"Brick of weed","",nil, 1.1},
+  ["coke_bag"] = {"Bag of cocaine","",nil, .25},
+  ["coca_leaf"] = {"Coca leaf","",nil, .05},
 }
 
 return cfg
