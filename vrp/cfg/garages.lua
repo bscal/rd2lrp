@@ -20,7 +20,7 @@ cfg.vehicle_chest_weights = {
   ["benson"] = 120,
   ["trailersmall"] = 100,
   ["trailers"] = 500,
-  ["tanker"] = 5000
+  ["tanker"] = 1500
 }
 
 -- each garage type is a map of veh_name => {title, price, description}
@@ -493,8 +493,8 @@ cfg.garage_types = {
   ["containers"] = {
     _config = {map_entity = {"PoI", {blip_id = 318, blip_color = 17, marker_id = 1}}},
     ["trailersmall"] = {"Petit", 3000, "Small container for pickup."},
-    ["trailers"] = {"Basic", 30000, "Medium container."},
-    ["tanker"] = {"Tanker", 300000, "Big container."}
+    ["trailers"] = {"Basic", 55000, "Medium container."},
+    ["tanker"] = {"Tanker", 250000, "Big container."}
   }
 }
 

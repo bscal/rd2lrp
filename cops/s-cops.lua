@@ -47,7 +47,7 @@ end
 function vRPCops.Fine(player, userid, amount)
     local user = vRP.users_by_source[source]
     local criminal = vRP.users_by_source[userid]
-    if not (isCopId(user.id)) then
+    if not (isCopId(user)) then
         TriggerClientEvent("pNotify:SendNotification", user.source, {
             text = "<strong>You are not a cop</strong>",
             type = "error",
@@ -61,6 +61,12 @@ function vRPCops.Fine(player, userid, amount)
     end
     local bank = criminal:getBank()
     criminal:setBank(bank - amount)
+    TriggerClientEvent("pNotify:SendNotification", criminal.source, {
+        text = "<strong>You have been fined"..amount.."$</strong>",
+        type = "info",
+        timeout = 5000,
+        layout = "topRight"
+    })
     return false
 end
 
@@ -126,7 +132,7 @@ function vRPCops.Jail(player, userid, time)
     local user = vRP.users_by_source[source]
     local criminal = vRP.users_by_source[userid]
     local cid = criminal.cid
-    if not (isCopId(user.id)) then
+    if not (isCopId(user)) then
         TriggerClientEvent("pNotify:SendNotification", user.source, {
             text = "<strong>You are not a cop</strong>",
             type = "error",
@@ -199,10 +205,8 @@ function getCopData(userid, cid)
     return results
 end
 
-function isCopId(userid)
-    local user = vRP.users_by_source[userid]
-    local cid = user.cid
-    local results = exports['GHMattiMySQL']:QueryResult("SELECT * FROM cops WHERE uid=@uid AND cid=@cid", {uid = userid, cid = cid})
+function isCopId(user)
+    local results = exports['GHMattiMySQL']:QueryResult("SELECT * FROM cops WHERE uid=@uid AND cid=@cid", {uid = user.id, cid = user.cid})
     if (#results < 1) then
         return false
     end
@@ -231,7 +235,7 @@ function vRPCops.setCop(userid)
     if not (isAdminId(user.id)) then
         return
     end
-    if (isCopId(userid)) then
+    if (isCopId(user)) then
         return
     end
     local p = vRP.users_by_source[userid]

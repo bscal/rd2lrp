@@ -144,7 +144,7 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(waitTime)
         if (isCop) or (isEMS) then
-            vRPCopsS.paycheck(400)
+            vRPCopsS.paycheck(800)
         else
             vRPCopsS.paycheck(150)
         end
@@ -596,9 +596,6 @@ end)
 RegisterCommand('time', function(source, args)
     vRPCopsS.getTimeRemaining()
 end)
-
-
--- Threads
 
 -- Functions
 function GetPlayers()

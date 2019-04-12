@@ -23,6 +23,7 @@ Citizen.CreateThread(function()
 
         -- Reduce Vehicle Density
         SetVehicleDensityMultiplierThisFrame(0.7)
+        SetParkedVehicleDensityMultiplierThisFrame(0.6)
 
         -- Online Players
         if (IsControlJustPressed(0,214)) then
