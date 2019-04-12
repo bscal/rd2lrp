@@ -76,7 +76,7 @@ cfg.hidden_transformers = {
       {2224.19091796875,5576.9423828125,53.8465042114258},
     }
   },
-    ["Weed field"] = {
+  ["Weed field2"] = {
     def = {
       title="Weed field", -- menu name
       color={0,200,0}, -- color
@@ -126,7 +126,7 @@ cfg.hidden_transformers = {
       {2576.3547363282,4650.3520507812,34.064353942872},
     }
   },
-    ["Coca leaf exchange"] = {
+    ["Coca leaf exchange2"] = {
     def = {
       title="Coca leaf exchange", -- menu name
       color={0,200,0}, -- color

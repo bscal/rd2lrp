@@ -48,11 +48,11 @@ local openedPlayerID = -1
 RegisterCommand('search', function(source, args, rawCommand)
     local closestPlayer, distance = GetClosestPlayer()
     if closestPlayer ~= nil and DoesEntityExist(GetPlayerPed(closestPlayer)) then
-        if distance -1 and distance < 2 then
+        if distance -1 and distance < 3 then
             local closestID = GetPlayerServerId(closestPlayer)
+            vRProbS.robInventory(closestID)
         end
     end
-    vRProbS.robInventory(tonumber(args[1]))
 end)
 
 RegisterCommand('inv', function(source, args, rawCommand)

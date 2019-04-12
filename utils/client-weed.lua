@@ -28,11 +28,11 @@ end)
 RegisterCommand('craft', function(source, args, rawCommand)
     for k, v in pairs(recipies) do
         if (args[1] == v.name) then
-            if loc then
+            if loc ~= nil then
                 local coords = GetEntityCoords(GetPlayerPed(-1), false)
                 local dist = Vdist(v.loc.x, v.loc.y, v.loc.z, coords.x, coords.y, coords.z)
                 if not dist < 2 then
-                    return false;
+                    return;
                 end
             end
             vRPUtilS._craftItem(v.items, v.result)
