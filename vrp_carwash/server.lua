@@ -1,21 +1,17 @@
 --Settings--
-local Tunnel = module("vrp", "lib/Tunnel")
-local Proxy = module("vrp", "lib/Proxy")
-
-vRP = Proxy.getInterface("vRP")
-vRPclient = Tunnel.getInterface("vRP","vRP_carwash")
-
 RegisterServerEvent('carwash:checkmoney')
 AddEventHandler('carwash:checkmoney', function(dirt)
-	local user_id = vRP.getUserId({source})
-	local player = vRP.getUserSource({user_id})
+	local user = vRP.users_by_source[source]
 	if parseFloat(dirt) > parseFloat(1.0) then
-	  if vRP.tryPayment({user_id,25}) then
-		TriggerClientEvent('carwash:success', player)
+	  if user:tryPayment(25, false) then
+		TriggerClientEvent('carwash:success', user.source)
+		vRP.EXT.Base.remote._notify(user.source, "You paid ~g~25$ ~w~for clean car.")
 	  else
-		TriggerClientEvent('carwash:notenough', player)
+		TriggerClientEvent('carwash:notenough', user.source)
+		vRP.EXT.Base.remote._notify(user.source, "You need ~r~25$~w~ for a carwash.")
 	  end	
 	else
-	  TriggerClientEvent('carwash:alreadyclean', player)
+	  vRP.EXT.Base.remote._notify(user.source, "You car is not dirty.")
+	  TriggerClientEvent('carwash:alreadyclean', user.source)
 	end
 end)
