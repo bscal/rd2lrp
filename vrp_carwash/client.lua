@@ -8,7 +8,7 @@ vehicleWashStation = {
 	{-699.6325,  -932.7043,  17.0139}
 }
 
-vRP = Proxy.getInterface("vRP")
+--vRP = Proxy.getInterface("vRP")
 
 Citizen.CreateThread(function ()
 	Citizen.Wait(0)
@@ -49,13 +49,13 @@ RegisterNetEvent('carwash:success')
 AddEventHandler('carwash:success', function()
 	SetVehicleDirtLevel(GetVehiclePedIsIn(GetPlayerPed(-1),false), 0.0)
 	SetVehicleUndriveable(GetVehiclePedIsIn(GetPlayerPed(-1),false), false)
-	vRP.notify({"Paid ~r~25$."})
+	--vRP.notify({"Paid ~r~25$."})
 end)
 RegisterNetEvent('carwash:notenough')
 AddEventHandler('carwash:notenough', function()
-	vRP.notify({"~r~Not enough money."})
+	--vRP.notify({"~r~Not enough money."})
 end)
 RegisterNetEvent('carwash:alreadyclean')
 AddEventHandler('carwash:alreadyclean', function()
-	vRP.notify({"~g~Vehicle already clean."})
+	--vRP.notify({"~g~Vehicle already clean."})
 end)

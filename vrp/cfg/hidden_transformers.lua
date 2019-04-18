@@ -224,7 +224,7 @@ cfg.hidden_transformers = {
 }
 
 -- time in minutes before hidden transformers are relocated (min is 5 minutes)
-cfg.hidden_transformer_duration = 1 -- 5 days
+cfg.hidden_transformer_duration = 60
 
 -- configure the information reseller (can sell hidden transformers positions)
 cfg.informer = {
