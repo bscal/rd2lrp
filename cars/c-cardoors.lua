@@ -4,17 +4,17 @@ local keys = {}
 local ped = nil
 
 local function IsAiVeh(veh)
-    for index, value in ipairs(keys) do
-        if value == veh then
+    for k, v in pairs(keys) do
+        if k == veh then
             return false
         end
     end
     if IsVehicleAlarmActivated(veh) then
         return true
     end
-    if IsVehicleStolen(veh) then
-        return true
-    end
+    -- if IsVehicleStolen(veh) then
+    --     return true
+    -- end
     return false
 end
 
@@ -81,7 +81,6 @@ function hotwireCar(veh)
                 vRP.EXT.GUI:setProgressBarValue("cars:hotwire",hotwire/HOTWIRE_MAX_TIME)
 
                 if (hotwire > HOTWIRE_MAX_TIME) then
-                    vRP.EXT.GUI:removeProgressBar("cars:hotwire")
                     keys[veh] = true
                     break;
                 end
@@ -89,6 +88,7 @@ function hotwireCar(veh)
                 break;
             end
         end
+        vRP.EXT.GUI:removeProgressBar("cars:hotwire")
         hotwiring = false
     end)
 end
