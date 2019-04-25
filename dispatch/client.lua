@@ -151,12 +151,16 @@ function vRPdispatch.ping(x, y, z, time)
 end
 
 function dispatch(playerid, msg, description, location)
-    vRPdispatchS._dispatchS(playerid, msg, description, location)
+    local desc = "Description: female"
+    if IsPedMale(playerid) then
+        desc = "Description: male"
+    end
+    vRPdispatchS._dispatchS(playerid, msg, desc, location)
 end
 
 function vRPdispatch.dispatchC(playerid, msg, description, location)
     if (isCop) then
-        local str = msg..", Location: "..location
+        local str = msg..", "..description..", Location: "..location
         TriggerEvent('chat:addMessage', {
             color = {255, 55, 55},
             multiline = true,
@@ -167,7 +171,11 @@ end
 
 RegisterNetEvent("DispatchRobbery")
 AddEventHandler("DispatchRobbery", function(playerid, msg, description, location)
-    vRPdispatchS._dispatchS(playerid, msg, description, location)
+    local desc = "Description: female"
+    if IsPedMale(playerid) then
+        desc = "Description: male"
+    end
+    vRPdispatchS._dispatchS(playerid, msg, desc, location)
 end)
 
 RegisterNetEvent("DispatchPing")
@@ -180,3 +188,5 @@ AddEventHandler('isService', function(cop, ems)
     isCop = cop;
     isEMS = ems;
 end)
+
+

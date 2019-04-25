@@ -61,8 +61,8 @@ RegisterCommand('repair', function(source, args, rawCommand)
     end
 end)
 
-RegisterCommand('clean', function(source, args, rawCommand)
-	local ped = GetPlayerPed(-1)
-	local veh = GetVehiclePedIsIn(ped, false)
-    SetVehicleDirtLevel(veh, 0.0)
-end)
+-- RegisterCommand('clean', function(source, args, rawCommand)
+-- 	local ped = GetPlayerPed(-1)
+-- 	local veh = GetVehiclePedIsIn(ped, false)
+--     SetVehicleDirtLevel(veh, 0.0)
+-- end)

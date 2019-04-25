@@ -5,7 +5,7 @@ vRPclient = Tunnel.getInterface("vRP","robberiesC")
 vRProbC = Tunnel.getInterface("robberiesC","robberiesC")
 
 local BASE_STORE_ROB_MONEY = 10
-local CONST_BASE_BANK_ROB_MONEY = 1000
+local CONST_BASE_BANK_ROB_MONEY = 2500
 
 function vRPRob.robMoney(victimId)
     local user = vRP.users_by_source[source]
@@ -81,8 +81,7 @@ end
 function vRPRob.robBank()
     local user = vRP.users_by_source[source]
     math.randomseed(os.time())
-    local rand1 = math.random(750, 1750)
-    local rand2 = math.random(1000, 1500)
+    local rand1 = math.random(1000, 2000)
     local amount = CONST_BASE_BANK_ROB_MONEY + rand1 + rand2
     user:giveWallet(amount)
     TriggerClientEvent("pNotify:SendNotification", user.source, {

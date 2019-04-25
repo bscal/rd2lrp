@@ -59,7 +59,7 @@ end
 
 function vRPjobs.completeCocaineSale()
     local user = vRP.users_by_source[source]
-    local amount = 500 + vRPjobs.getRandom(5, 70)
+    local amount = 600 + vRPjobs.getRandom(0, 100)
     if user:tryTakeItem("edible|cocaine",1,false,false) then
         user:giveWallet(amount)
         vRP.EXT.Base.remote._notify(user.source, "You sold cocaine for "..amount.."$.")

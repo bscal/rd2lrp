@@ -44,7 +44,7 @@ Citizen.CreateThread(function()
             if not hasSeatBeltOn then
                 SetTextColour(105, 99, 99, 255)
             else
-                SetTextColour(204, 153, 0, 255)
+                SetTextColour(55, 255, 55, 255)
             end
             SetTextOutline()
             SetTextEntry("STRING")

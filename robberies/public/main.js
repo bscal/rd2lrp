@@ -51,7 +51,7 @@ window.addEventListener("message", function(event) {
         $(".listl").empty();
         for (var key in data.inv) {
             if (data.inv.hasOwnProperty(key)) {
-                $(".listl").append(`<li><button class="slot" type="button">${key} | ${data.inv[key]}</button></li>`)
+                $(".listl").append(`<li><button id="yours" class="slot" type="button">${key} | ${data.inv[key]}</button></li>`)
             }
         }
         $(".listr").empty();

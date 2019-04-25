@@ -5,7 +5,7 @@ Citizen.CreateThread(function()
         local veh = GetVehiclePedIsIn(ped, false)
         if veh ~= nil then
             if GetVehicleClass(veh) == 18 then
-				SetVehicleEnginePowerMultiplier(GetVehiclePedIsIn(ped, false), 40.0)                
+				SetVehicleEnginePowerMultiplier(GetVehiclePedIsIn(ped, false), 25.0)                
             end
         end
 	end

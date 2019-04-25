@@ -120,13 +120,6 @@ Citizen.CreateThread(function()
             DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
             DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
 
-            if (IsControlPressed(0, 21)) then
-                print("shift")
-            end
-            if (IsControlPressed(0, 36)) then
-                print("shift")
-            end
-
             if IsDisabledControlJustReleased(0, 142) then -- MeleeAttackAlternate
                 SendNUIMessage({
                     type = "click"
@@ -154,7 +147,8 @@ end)
 
 RegisterNUICallback('clicked', function(data)
     print(data['id'])
-    if data['id'] then
+    if data['id'] == "yours" then
+        return
     end
     if data["item"] ~= nil then
         local str = splitString(data["item"], " ")

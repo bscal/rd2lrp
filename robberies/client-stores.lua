@@ -101,6 +101,7 @@ function alertPolice()
     local streethash = GetStreetNameAtCoord(x, y, z)
     local street = GetStreetNameFromHashKey(streethash)
     TriggerEvent("DispatchRobbery", ped, "Attempted Robbery", "None", street)
+    TriggerEvent("DispatchPing", x, y, z, 120)
 end
 
 function ShowInfoRevive(text, x, y)

@@ -123,6 +123,7 @@ function nextWeedStep()
     end
     currentWeedLoc = weedDeliveries[weedStep]
     SetNewWaypoint(currentWeedLoc.x, currentWeedLoc.y)
+    vRP.EXT.Base.notify("Delivery the weed to the marked location")
 end
 
 function startCokeSale(ped, pos)
@@ -144,7 +145,7 @@ function vRPjobs.switchCocaineLocations(spot1, spot2)
 end
 
 AddEventHandler('playerSpawned', function()
-    loc1, loc2 = vRPjobsS.getCocaineLocations()
+    local loc1, loc2 = vRPjobsS.getCocaineLocations()
     currentCocaineLocations[1] = loc1
     currentCocaineLocations[2] = loc2
 end)
