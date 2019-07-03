@@ -34,10 +34,6 @@ end
 local templateStr
 
 function updatePlayerNames()
-	if true then
-		return
-	end
-
     -- re-run this function the next frame
     SetTimeout(0, updatePlayerNames)
 
@@ -94,8 +90,8 @@ function updatePlayerNames()
             -- show/hide based on nearbyness/line-of-sight
             -- nearby checks are primarily to prevent a lot of LOS checks
             if distance < 250 and HasEntityClearLosToEntity(PlayerPedId(), ped, 17) then
-                --SetMpGamerTagVisibility(tag, gtComponent.GAMER_NAME, true)
-                --SetMpGamerTagVisibility(tag, gtComponent.healthArmour, IsPlayerTargettingEntity(PlayerId(), ped))
+                SetMpGamerTagVisibility(tag, gtComponent.GAMER_NAME, true)
+                SetMpGamerTagVisibility(tag, gtComponent.healthArmour, IsPlayerTargettingEntity(PlayerId(), ped))
                 SetMpGamerTagVisibility(tag, gtComponent.AUDIO_ICON, NetworkIsPlayerTalking(i))
 
                 SetMpGamerTagAlpha(tag, gtComponent.AUDIO_ICON, 255)
@@ -124,8 +120,8 @@ function updatePlayerNames()
                     SetMpGamerTagHealthBarColour(tag, settings.healthColor)
                 end
             else
-                --SetMpGamerTagVisibility(tag, gtComponent.GAMER_NAME, false)
-                --SetMpGamerTagVisibility(tag, gtComponent.healthArmour, false)
+                SetMpGamerTagVisibility(tag, gtComponent.GAMER_NAME, false)
+                SetMpGamerTagVisibility(tag, gtComponent.healthArmour, false)
                 SetMpGamerTagVisibility(tag, gtComponent.AUDIO_ICON, false)
             end
         elseif mpGamerTags[i] then

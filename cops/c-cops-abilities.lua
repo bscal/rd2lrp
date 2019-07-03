@@ -1,10 +1,18 @@
-local vRPserver = Tunnel.getInterface("vRP","cops")
-local vRPCopsS = Tunnel.getInterface("cops","cops")
+vRPclient = Tunnel.getInterface("vRP", "cops")
+vRPCopsS = Tunnel.getInterface("cops", "cops")
 
--- Variables
--- Is Cop
-local isCop = false
-local isEMS = false
+vRPCops = {}
+Tunnel.bindInterface("cops", vRPCops)
+Proxy.addInterface("cops", vRPCops)
+
+-- Admin and admin permission level
+isAdmin = false
+permLevel = 0
+
+-- Cop, Ems, etc permissions
+isCop = false
+isEMS = false
+
 -- Player statuses
 local handcuffed = false
 local deletegun = false
@@ -156,11 +164,18 @@ Citizen.CreateThread(function()
         Citizen.Wait(30000)
         if (fullyLoaded) then
             vRPCopsS.isCopToClient()
+            vRPCopsS.isAdmin()
             if (isCop) or (isEMS) then
                 TriggerEvent("isService", isCop, isEMS)
             end
         end
     end
+end)
+
+RegisterNetEvent('cop:clientIsAdmin')
+AddEventHandler('cop:clientIsAdmin', function(admin, perm)
+    isAdmin = admin
+    permLevel = perm
 end)
 
 -- Commands
@@ -225,7 +240,6 @@ RegisterCommand('showid', function()
     closest, distance = GetClosestPlayer()
     if closest ~= nil and DoesEntityExist(GetPlayerPed(closest)) then
         local closestID = GetPlayerServerId(closest)
-        print(closestID)
         vRPCopsS.showID(closestID)
     end
 end)

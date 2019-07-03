@@ -32,6 +32,7 @@ local modules = {
   police = false,
   radio = true,
   ped_blacklist = true,
+  veh_blacklist = true,
   edible = true,
   warp = false
 }

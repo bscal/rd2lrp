@@ -1,3 +1,5 @@
+dependency "vrp"
+
 server_script {
     "@vrp/lib/utils.lua",
     "server.lua"
@@ -5,10 +7,7 @@ server_script {
 
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua",
-    "client.lua",
-    "c-cops-abilities.lua",
-    "c-cops-ems.lua",
+    "init.lua"
 }
 
 files {
@@ -18,5 +17,9 @@ files {
     "lib/IDManager.lua",
     "lib/ActionDelay.lua",
     "lib/Luang.lua",
-    --"c-cops-dispatch.lua"
+    "init.lua",
+    "client.lua",
+    "c-cops-abilities.lua",
+    "c-cops-dispatch.lua",
+    "c-cops-ems.lua"
 }

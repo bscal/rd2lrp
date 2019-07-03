@@ -1,9 +1,3 @@
-vRPUtils = {}
-Tunnel.bindInterface("utils", vRPUtils)
-Proxy.addInterface("utils", vRPUtils)
-vRPclient = Tunnel.getInterface("vRP","utilsC")
-vRPUtilsC = Tunnel.getInterface("utilsC","utilsC")
-
 local REPAIR_COST = 1500
 
 function vRPUtils.hasMoneyForRepair()

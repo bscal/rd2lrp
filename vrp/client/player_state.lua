@@ -1,4 +1,6 @@
-if not vRP.modules.player_state then return end
+if not vRP.modules.player_state then
+  return
+end
 
 local PlayerState = class("PlayerState", vRP.Extension)
 
@@ -63,29 +65,33 @@ function PlayerState:__construct()
   self.update_interval = 30
 
   -- update task
-  Citizen.CreateThread(function()
-    while true do
-      Citizen.Wait(self.update_interval*1000)
+  Citizen.CreateThread(
+    function()
+      while true do
+        Citizen.Wait(self.update_interval * 1000)
 
-      if self.state_ready then
-        local x,y,z = vRP.EXT.Base:getPosition()
+        if self.state_ready then
+          local x, y, z = vRP.EXT.Base:getPosition()
 
-        self.remote._update({
-          position = {x=x,y=y,z=z},
-          heading = GetEntityHeading(GetPlayerPed(-1)),
-          weapons = self:getWeapons(),
-          customization = self:getCustomization(),
-          health = self:getHealth(),
-          armour = self:getArmour()
-        })
+          self.remote._update(
+            {
+              position = {x = x, y = y, z = z},
+              heading = GetEntityHeading(GetPlayerPed(-1)),
+              weapons = self:getWeapons(),
+              customization = self:getCustomization(),
+              health = self:getHealth(),
+              armour = self:getArmour()
+            }
+          )
+        end
       end
     end
-  end)
+  )
 end
 
 -- WEAPONS
 
--- get player weapons 
+-- get player weapons
 -- return map of name => {.ammo}
 function PlayerState:getWeapons()
   local player = GetPlayerPed(-1)
@@ -93,16 +99,16 @@ function PlayerState:getWeapons()
   local ammo_types = {} -- remember ammo type to not duplicate ammo amount
 
   local weapons = {}
-  for k,v in pairs(PlayerState.weapon_types) do
+  for k, v in pairs(PlayerState.weapon_types) do
     local hash = GetHashKey(v)
-    if HasPedGotWeapon(player,hash) then
+    if HasPedGotWeapon(player, hash) then
       local weapon = {}
       weapons[v] = weapon
 
       local atype = Citizen.InvokeNative(0x7FEAD38B326B9F74, player, hash)
       if ammo_types[atype] == nil then
         ammo_types[atype] = true
-        weapon.ammo = GetAmmoInPedWeapon(player,hash)
+        weapon.ammo = GetAmmoInPedWeapon(player, hash)
       else
         weapon.ammo = 0
       end
@@ -130,14 +136,14 @@ function PlayerState:giveWeapons(weapons, clear_before)
   -- give weapons to player
 
   if clear_before then
-    RemoveAllPedWeapons(player,true)
+    RemoveAllPedWeapons(player, true)
   end
 
-  for k,weapon in pairs(weapons) do
+  for k, weapon in pairs(weapons) do
     local hash = GetHashKey(k)
     local ammo = weapon.ammo or 0
 
-    GiveWeaponToPed(player, hash, ammo, false)
+    GiveWeaponToPed(player, hash, ammo, false, false)
   end
 end
 
@@ -164,7 +170,6 @@ function tvRP.dropWeapon()
   SetPedDropsWeapon(GetPlayerPed(-1))
 end
 --]]
-
 -- PLAYER CUSTOMIZATION
 
 -- get number of drawables for a specific part
@@ -173,23 +178,23 @@ function PlayerState:getDrawables(part)
   local index = parseInt(args[2])
 
   if args[1] == "prop" then
-    return GetNumberOfPedPropDrawableVariations(GetPlayerPed(-1),index)
+    return GetNumberOfPedPropDrawableVariations(GetPlayerPed(-1), index)
   elseif args[1] == "drawable" then
-    return GetNumberOfPedDrawableVariations(GetPlayerPed(-1),index)
+    return GetNumberOfPedDrawableVariations(GetPlayerPed(-1), index)
   elseif args[1] == "overlay" then
     return GetNumHeadOverlayValues(index)
   end
 end
 
 -- get number of textures for a specific part and drawable
-function PlayerState:getDrawableTextures(part,drawable)
+function PlayerState:getDrawableTextures(part, drawable)
   local args = splitString(part, ":")
   local index = parseInt(args[2])
 
   if args[1] == "prop" then
-    return GetNumberOfPedPropTextureVariations(GetPlayerPed(-1),index,drawable)
+    return GetNumberOfPedPropTextureVariations(GetPlayerPed(-1), index, drawable)
   elseif args[1] == "drawable" then
-    return GetNumberOfPedTextureVariations(GetPlayerPed(-1),index,drawable)
+    return GetNumberOfPedTextureVariations(GetPlayerPed(-1), index, drawable)
   end
 end
 
@@ -203,22 +208,26 @@ function PlayerState:getCustomization()
   custom.modelhash = GetEntityModel(ped)
 
   -- ped parts
-  for i=0,20 do -- index limit to 20
-    custom["drawable:"..i] = {GetPedDrawableVariation(ped,i), GetPedTextureVariation(ped,i), GetPedPaletteVariation(ped,i)}
+  for i = 0, 20 do -- index limit to 20
+    custom["drawable:" .. i] = {
+      GetPedDrawableVariation(ped, i),
+      GetPedTextureVariation(ped, i),
+      GetPedPaletteVariation(ped, i)
+    }
   end
 
   -- props
-  for i=0,10 do -- index limit to 10
-    custom["prop:"..i] = {GetPedPropIndex(ped,i), math.max(GetPedPropTextureIndex(ped,i),0)}
+  for i = 0, 10 do -- index limit to 10
+    custom["prop:" .. i] = {GetPedPropIndex(ped, i), math.max(GetPedPropTextureIndex(ped, i), 0)}
   end
 
   custom.hair_color = {GetPedHairColor(ped), GetPedHairHighlightColor(ped)}
 
-  for i=0,12 do
+  for i = 0, 12 do
     local ok, index, ctype, pcolor, scolor, opacity = GetPedHeadOverlayData(ped, i)
     if ok then
-      custom["overlay:"..i] = {index, pcolor, scolor, opacity}
-	end
+      custom["overlay:" .. i] = {index, pcolor, scolor, opacity}
+    end
   end
 
   return custom
@@ -232,85 +241,91 @@ end
 --- "prop:<index>": {prop_index, prop_texture}
 --- "hair_color": {primary, secondary}
 --- "overlay:<index>": {overlay_index, primary color, secondary color, opacity}
-function PlayerState:setCustomization(custom) 
+function PlayerState:setCustomization(custom)
   local r = async()
 
-  Citizen.CreateThread(function() -- new thread
-    if custom then
-      local ped = GetPlayerPed(-1)
-      local mhash = nil
+  Citizen.CreateThread(
+    function()
+      -- new thread
+      if custom then
+        local ped = GetPlayerPed(-1)
+        local mhash = nil
 
-      -- model
-      if custom.modelhash then
-        mhash = custom.modelhash
-      elseif custom.model then
-        mhash = GetHashKey(custom.model)
-      end
-
-      if mhash then
-        local i = 0
-        while not HasModelLoaded(mhash) and i < 10000 do
-          RequestModel(mhash)
-          Citizen.Wait(10)
+        -- model
+        if custom.modelhash then
+          mhash = custom.modelhash
+        elseif custom.model then
+          mhash = GetHashKey(custom.model)
         end
 
-        if HasModelLoaded(mhash) then
-          -- changing player model remove weapons, armour and health, so save it
-
-          vRP:triggerEventSync("playerModelSave")
-
-          local weapons = self:getWeapons()
-          local armour = self:getArmour()
-          local health = self:getHealth()
-
-          SetPlayerModel(PlayerId(), mhash)
-
-          self:giveWeapons(weapons,true)
-          self:setArmour(armour)
-          self:setHealth(health)
-
-          vRP:triggerEventSync("playerModelRestore")
-
-          SetModelAsNoLongerNeeded(mhash)
-        end
-      end
-
-      ped = GetPlayerPed(-1)
-
-      -- face blend data
-      local face = (custom["drawable:0"] and custom["drawable:0"][1]) or GetPedDrawableVariation(ped,0)
-      SetPedHeadBlendData(ped, face, face, 0, face, face, 0, 0.5, 0.5, 0.0, false)
-
-      -- drawable, prop, overlay
-      for k,v in pairs(custom) do
-        local args = splitString(k, ":")
-        local index = parseInt(args[2])
-
-        if args[1] == "prop" then
-          if v[1] < 0 then
-            ClearPedProp(ped,index)
-          else
-            SetPedPropIndex(ped,index,v[1],v[2],true)
+        if mhash then
+          local i = 0
+          while not HasModelLoaded(mhash) and i < 10000 do
+            RequestModel(mhash)
+            Citizen.Wait(10)
           end
-        elseif args[1] == "drawable" then
-          SetPedComponentVariation(ped,index,v[1],v[2],v[3] or 2)
-        elseif args[1] == "overlay" then
-          local ctype = 0
-          if index == 1 or index == 2 or index == 10 then ctype = 1
-          elseif index == 5 or index == 8 then ctype = 2 end
 
-          SetPedHeadOverlay(ped, index, v[1], v[4] or 1.0)
-          SetPedHeadOverlayColor(ped, index, ctype, v[2] or 0, v[3] or 0)
+          if HasModelLoaded(mhash) then
+            -- changing player model remove weapons, armour and health, so save it
+
+            vRP:triggerEventSync("playerModelSave")
+
+            local weapons = self:getWeapons()
+            local armour = self:getArmour()
+            local health = self:getHealth()
+
+            SetPlayerModel(PlayerId(), mhash)
+
+            self:giveWeapons(weapons, true)
+            self:setArmour(armour)
+            self:setHealth(health)
+
+            vRP:triggerEventSync("playerModelRestore")
+
+            SetModelAsNoLongerNeeded(mhash)
+          end
+        end
+
+        ped = GetPlayerPed(-1)
+
+        -- face blend data
+        local face = (custom["drawable:0"] and custom["drawable:0"][1]) or GetPedDrawableVariation(ped, 0)
+        SetPedHeadBlendData(ped, face, face, 0, face, face, 0, 0.5, 0.5, 0.0, false)
+
+        -- drawable, prop, overlay
+        for k, v in pairs(custom) do
+          local args = splitString(k, ":")
+          local index = parseInt(args[2])
+
+          if args[1] == "prop" then
+            if v[1] < 0 then
+              ClearPedProp(ped, index)
+            else
+              SetPedPropIndex(ped, index, v[1], v[2], true)
+            end
+          elseif args[1] == "drawable" then
+            SetPedComponentVariation(ped, index, v[1], v[2], v[3] or 2)
+          elseif args[1] == "overlay" then
+            local ctype = 0
+            if index == 1 or index == 2 or index == 10 then
+              ctype = 1
+            elseif index == 5 or index == 8 then
+              ctype = 2
+            end
+
+            SetPedHeadOverlay(ped, index, v[1], v[4] or 1.0)
+            SetPedHeadOverlayColor(ped, index, ctype, v[2] or 0, v[3] or 0)
+          end
+        end
+
+        if custom.hair_color then
+          SetPedHairColor(ped, table.unpack(custom.hair_color))
         end
       end
 
-      if custom.hair_color then
-		SetPedHairColor(ped, table.unpack(custom.hair_color))
-      end
+      r()
     end
-
-    r()
-  end)
+  )
 
   return r:wait()
 end
