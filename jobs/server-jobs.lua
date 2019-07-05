@@ -1,9 +1,8 @@
-local vRPjobs = {}
+vRPjobs = {}
 Tunnel.bindInterface("jobs", vRPjobs)
 Proxy.addInterface("jobs", vRPjobs)
-
-local vRPclient = Tunnel.getInterface("vRP", "jobs")
-local vRPjobsC = Tunnel.getInterface("jobs", "jobs")
+vRPclient = Tunnel.getInterface("vRP", "jobs")
+vRPjobsC = Tunnel.getInterface("jobs", "jobs")
 
 function vRPjobs.random(size)
     math.randomseed(os.time())
@@ -70,6 +69,9 @@ function vRPjobs.getRandom(min, max)
     return math.random(min, max)
 end
 
+--[[
+    ! Cocaine
+]]
 local cocaineSells = {
     {x = -807.35809326172, y = -1016.6823120118, z = 12.920090675354},
     {x = -1569.6735839844, y = -487.87338256836, z = 35.391376495362},
@@ -106,9 +108,43 @@ end
 
 --[[
     !
-    ! MYSQL user_jobs queries and other jobs functionality
+    ! Jobs and Businesses
     !
 ]]
+-- * Business table
+local businessTables = {
+    ["Emergency Worker"] = {name = "Emergency Worker", btype = "cop", salary = 800},
+    ["Car Salesman"] = {name = "Car Salesman", btype = "car_sales", salary = 1000, downpay = 20000, cost = 50000},
+    ["Banker"] = {salary = 2000}
+}
+-- * Table of levels based on initLevels and levelup equation function
+local xpForLevel = {}
+
+-- * Variables used in levelUpEquation
+local lvlx = 2
+local lvly = 2
+local lvlz = 1
+local function levelUpEquation(level)
+    return (lvlx * level ^ 2) + (lvly * level) + lvlz
+end
+
+local function canLevelUp(xp)
+    for i = 1, #xpForLevel do
+        if xp < xpForLevel[i] then
+            return i
+        end
+    end
+end
+
+local function initLevels(max)
+    for i = 1, max do
+        xpForLevel[i] = levelUpEquation(i)
+    end
+end
+
+-- ! Initilize
+initLevels(10)
+
 function DoesCIDJobExist(cid)
     local query = exports["GHMattiMySQL"]:QueryResult("SELECT * FROM user_jobs WHERE cid=@cid", {cid = cid})
     if (#query < 1) then
@@ -136,31 +172,21 @@ function vRPjobs.setLevel(level, job)
     vRP.EXT.Base.remote._notify(user.source, "You gained a level! Now level~r~ " .. newLevel .. " " .. job)
 end
 
--- * Table of levels based on initLevels and levelup equation function
-local xpForLevel = {}
--- * Variables used in levelUpEquation
-local lvlx = 2
-local lvly = 2
-local lvlz = 1
-local function levelUpEquation(level)
-    return (lvlx * level ^ 2) + (lvly * level) + lvlz
-end
-
-local function canLevelUp(xp)
-    for i = 1, #xpForLevel do
-        if xp < xpForLevel[i] then
-            return i
-        end
+function vRPjobs.paycheck(job)
+    print("paycheck")
+    local user = vRP.users_by_source[source]
+    local pay
+    local msg
+    if businessTables[job] then
+        pay = businessTables[job].salary
+        msg = "Your paycheck of ~g~+" .. pay .. "$ ~w~has been deposited into your bank account."
+    else
+        pay = 200
+        msg = "You have collected ~g~+200$ ~w~in unemployment."
     end
+    user:giveBank(pay)
+    vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "Bank statement", msg)
 end
-
-local function initLevels(max)
-    for i = 1, max do
-        xpForLevel[i] = levelUpEquation(i)
-    end
-end
-
-initLevels(10)
 
 function vRPjobs.tryLevelUp()
     local user = vRP.users_by_source[source]
@@ -223,12 +249,6 @@ function CreateNewBusiness(cid, bname, btype, worth)
     exports["GHMattiMySQL"]:Query(querystring, {cid = cid, bname = bname, btype = btype, worth = worth})
     return true
 end
-
--- * Business table
-local businessTables = {
-    ["Car Salesman"] = {name = "Car Salesman", btype = "cars_sales", salary = 1000, downpay = 20000, cost = 50000},
-    ["Banker"] = {salary = 2000}
-}
 
 function vRPjobs.buyBusiness(bname)
     local BASE_WORTH_PERCENTAGE = 0.50

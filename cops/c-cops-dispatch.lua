@@ -66,15 +66,10 @@ function HandleCopGPS()
             SetBlipFlashesAlternate(blip, false)
             SetBlipNameToPlayerName(blip, GetPlayerFromServerId(k))
             if v[4] == 1 then
-                -- BeginTextCommandSetBlipName("STRING")
-                -- AddTextComponentString("Officer")
                 SetBlipColour(blip, 3)
             else
-                -- BeginTextCommandSetBlipName("STRING")
-                -- AddTextComponentString("EMS")
                 SetBlipColour(blip, 1)
             end
-            -- EndTextCommandSetBlipName(blip)
             onlineBlipSet[k] = blip
         else
             SetBlipCoords(onlineBlipSet[k], v[1], v[2], v[3])

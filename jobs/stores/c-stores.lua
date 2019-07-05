@@ -1,14 +1,8 @@
-local vRPclient = Tunnel.getInterface("vRP", "jobs")
-local vRPjobsS = Tunnel.getInterface("jobs", "jobs")
-local vRPjobs = {}
-Tunnel.bindInterface("jobs", vRPjobs)
-Proxy.addInterface("jobs", vRPjobs)
-
 local stores = {}
 
 Citizen.CreateThread(
     function()
-        for k, v in pairs(stores) do
+        for _, v in pairs(stores) do
             if not v.hidden then
                 local blip = AddBlipForCoord(v.x, v.y, v.z)
                 SetBlipSprite(blip, v.blip)

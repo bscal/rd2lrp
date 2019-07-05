@@ -7,8 +7,14 @@ server_script {
 
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua"
+    "init.lua",
+    "c-cops-abilities.lua"
 }
+
+export "isEmergencyJob"
+export "isAdmin"
+export "getPermLevel"
+export "isHandcuffed"
 
 files {
     "lib/Luaoop.lua",

@@ -41,12 +41,6 @@ function vRPCops.hospitalStay(amount)
     user:tryFullPayment(amount, false)
 end
 
-function vRPCops.paycheck(amount)
-    local user = vRP.users_by_source[source]
-    user:giveBank(amount)
-    vRP.EXT.Base.remote._notify(user.source, "You recieved a paycheck for " .. amount .. "$")
-end
-
 function vRPCops.updateJailTime(player)
     local user = vRP.users_by_source[source]
     if (user == nil) then
