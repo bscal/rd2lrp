@@ -1,10 +1,3 @@
-local vRPclient = Tunnel.getInterface("vRP", "utils")
-local vRPUtilS = Tunnel.getInterface("utils", "utils")
-
-local vRPUtil = {}
-Tunnel.bindInterface("utils", vRPUtil)
-Proxy.addInterface("utils", vRPUtil)
-
 local guiEnabled = false
 
 Citizen.CreateThread(

@@ -1,9 +1,10 @@
-local vRPclient = Tunnel.getInterface("vRP", "jobs")
-local vRPjobsS = Tunnel.getInterface("jobs", "jobs")
-local vRPjobs = {}
+vRPclient = Tunnel.getInterface("vRP", "jobs")
+vRPjobsS = Tunnel.getInterface("jobs", "jobs")
+vRPjobs = {}
 Tunnel.bindInterface("jobs", vRPjobs)
 Proxy.addInterface("jobs", vRPjobs)
 
+-- ! Temp jobs/deliveries
 local deliveryJob = {
     {x = -425.2098083496, y = 6128.8266601562, z = 31.475679397584, name = "Delivery Job", blip = 67, color = 21},
     {x = 61.271408081054, y = 114.32566070556, z = 79.089897155762, name = "Delivery Job", blip = 67, color = 21}
@@ -25,6 +26,7 @@ local vehicle = nil
 local currentDelivery = nil
 local deliveryDist = 0
 
+-- * Delivery Job Marker Manage Loop
 Citizen.CreateThread(
     function()
         initBlips(deliveryJob)
@@ -37,7 +39,7 @@ Citizen.CreateThread(
                 local pos = GetEntityCoords(ped, true)
                 local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
                 if (dist < 2.0) and not isDeliveryJob then
-                    ShowInfoTextJobs("~y~Take delivery job press ~p~H~y~.", .4, .8)
+                    ShowText("~y~Take delivery job press ~p~H~y~.", .4, .8)
                     if (IsControlJustReleased(0, 101)) then
                         if vehicle == nil or not IsPedSittingInVehicle(ped, vehicle) then
                             local vehName = "BOXVILLE2"
@@ -75,7 +77,7 @@ Citizen.CreateThread(
                             local pos = GetEntityCoords(ped, true)
                             local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
                             if (dist < 3.0) then
-                                ShowInfoTextJobs("~y~Take delivery job press ~p~E~y~.", .4, .8)
+                                ShowText("~y~Take delivery job press ~p~E~y~.", .4, .8)
                                 if (IsControlJustReleased(0, 38)) then
                                     vRPjobsS._completeDelivery(deliveryDist)
                                     isDeliveryJob = false
@@ -96,6 +98,8 @@ function vRPjobs.newDelivery(pos)
     SetNewWaypoint(currentDelivery.x, currentDelivery.y)
 end
 
+-- ! Functions
+
 function initBlips(jobtable)
     for k, v in pairs(jobtable) do
         if not v.hidden then
@@ -110,7 +114,7 @@ function initBlips(jobtable)
     end
 end
 
-function ShowInfoTextJobs(text, x, y)
+function ShowText(text, x, y)
     SetTextFont(0)
     SetTextScale(0.4, 0.4)
     SetTextColour(255, 255, 255, 255)
@@ -118,26 +122,3 @@ function ShowInfoTextJobs(text, x, y)
     AddTextComponentString(text)
     DrawText(x, y)
 end
-
-local jobListings = {
-    ["Car Salesman"] = {salary = 1000},
-    ["Banker"] = {salary = 2000}
-}
-local currentJob = nil
-
-AddEventHandler(
-    "playerSpawned",
-    function()
-        -- * gets the players current job
-        currentJob = vRPjobsS.getCurrentJob()
-        print(currentJob)
-    end
-)
-
-RegisterNetEvent("jobs:setNewJob")
-AddEventHandler(
-    "jobs:setNewJob",
-    function(job)
-        vRPjobsS._setCurrentJob(job)
-    end
-)

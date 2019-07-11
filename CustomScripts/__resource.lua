@@ -1,7 +1,6 @@
 -- server scripts
-server_scripts{ 
+server_scripts {
   "@vrp/lib/utils.lua",
-  "deletepoliceweapons-server.lua",
   "commands-server.lua",
   "deathmessages-server.lua",
   "weathersync-server.lua",
@@ -9,20 +8,15 @@ server_scripts{
 }
 
 -- client scripts
-client_scripts{
+client_scripts {
   "cfg/config.lua",
-  "crouch-client.lua",
   "pointfinger-client.lua",
   "handsup-client.lua",
   "stopwanted-client.lua",
-  "deletepoliceweapons-client.lua",
   "deathmessages-client.lua",
-  "gameui-client.lua",
-  "weathersync-client.lua",
-  "missiontext-client.lua",
-  "noweapondrops-client.lua"
- }
- 
-  exports {
-    'getSurrenderStatus',
+  "missiontext-client.lua"
+}
+
+exports {
+  "getSurrenderStatus"
 }

@@ -41,12 +41,6 @@ function vRPCops.hospitalStay(amount)
     user:tryFullPayment(amount, false)
 end
 
-function vRPCops.paycheck(amount)
-    local user = vRP.users_by_source[source]
-    user:giveBank(amount)
-    vRP.EXT.Base.remote._notify(user.source, "You recieved a paycheck for " .. amount .. "$")
-end
-
 function vRPCops.updateJailTime(player)
     local user = vRP.users_by_source[source]
     if (user == nil) then
@@ -529,26 +523,3 @@ AddEventHandler(
         TriggerClientEvent("chatMessage", -1, "ID", {255, 255, 255}, "Name: " .. id)
     end
 )
-
-------------- Init -------------
-
-function initTables()
-    exports["GHMattiMySQL"]:Query(
-        "CREATE TABLE IF NOT EXISTS cops (uid INT, cid INT, rank INT, callsign VARCHAR(2))",
-        {}
-    )
-    exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS copadmins (uid INT)", {})
-    exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS rp_jail (uid INT, cid INT, time INT)", {})
-    exports["GHMattiMySQL"]:Query(
-        "CREATE TABLE IF NOT EXISTS mdt_sentence (id INT NOT NULL PRIMARY KEY auto_increment, uid INT, cid INT, sentence TEXT(512))",
-        {}
-    )
-    exports["GHMattiMySQL"]:Query(
-        "CREATE TABLE IF NOT EXISTS mdt_warrant (id INT NOT NULL PRIMARY KEY auto_increment, uid INT, cid INT, officer VARCHAR(32),warrants VARCHAR(255), date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)",
-        {}
-    )
-    exports["GHMattiMySQL"]:Query(
-        "CREATE TABLE IF NOT EXISTS mdt_criminal (uid INT, cid INT, flags VARCHAR(32), liscense VARCHAR(32), number VARCHAR(16), points INT, gunliscense VARCHAR(32))",
-        {}
-    )
-end

@@ -21,14 +21,16 @@ local nearEMS = false;
 local nearMDT = false;
 local mdtLoggedIn = false;
 
-policeCoords = {{name = "Police Station", x = 441.07467651368, y = -978.25646972656, z = 30.689603805542}, --main
+local reviveWait = 120
+
+local policeCoords = {{name = "Police Station", x = 441.07467651368, y = -978.25646972656, z = 30.689603805542}, --main
                 {name = "Police Station", x = 1852.9038085938, y = 3690.0769042968, z = 34.267082214356}, --ss
                 {name = "Police Station", x = -449.4927368164, y = 6012.422855625, z = 31.71650314331}, --p
                 {name = "Police Station", x = 1755.4387207032, y = 2614.3198242188, z = 45.56502532959},  --bb
                 {name = "Police Station", x = 459.74032592774, y = -989.16204833984, z = 24.914859771728}} --main
-policeColors = {r = 35, g = 45, b = 235,a = 125}
-emsCoords = {{name = "Hospital", x = 306.724609375, y = -595.47827148438, z = 43.995809082032}}
-emsColors = {r = 41, g = 41, b = 255,a = 125}
+local policeColors = {r = 35, g = 45, b = 235,a = 125}
+local emsCoords = {{name = "Hospital", x = 306.724609375, y = -595.47827148438, z = 43.995809082032}}
+local emsColors = {r = 41, g = 41, b = 255,a = 125}
 
 Citizen.CreateThread(function()
     for k, v in ipairs(policeCoords) do
@@ -140,23 +142,11 @@ local fullyLoaded = false
 
 AddEventHandler('playerSpawned', function()
     fullyLoaded = true
+    reviveWait = 120
 end)
 
 AddEventHandler('cop:revivePlayer', function()
     reviveWait = 120
-end)
-
---Paychecks
-Citizen.CreateThread(function()
-    local waitTime = 60000  * 30
-    while true do
-        Citizen.Wait(waitTime)
-        if (isCop) or (isEMS) then
-            vRPCopsS.paycheck(800)
-        else
-            vRPCopsS.paycheck(150)
-        end
-    end
 end)
 
 Citizen.CreateThread(function()
@@ -176,6 +166,11 @@ RegisterNetEvent('cop:clientIsAdmin')
 AddEventHandler('cop:clientIsAdmin', function(admin, perm)
     isAdmin = admin
     permLevel = perm
+    TriggerEvent('chat:addMessage', {
+        color = {255, 255, 255},
+        multiline = false,
+        args = {"You are Admin. Permission level ", perm}
+    })
 end)
 
 -- Commands
@@ -741,6 +736,12 @@ RegisterCommand('rmwarrant', function(source, args)
 	end
 end)
 
+RegisterCommand('rmallwarrants', function(source, args)
+    if isCop == true and canAccessMDT() then
+        vRPCopsS.removeAllWarrants(tonumber(args[1]))
+	end
+end)
+
 function canAccessMDT()
     local ped = GetPlayerPed(-1)
     local veh = GetVehiclePedIsIn(ped, false)
@@ -767,8 +768,6 @@ Citizen.CreateThread(function()
 end)
 
 -- EMS
-
-local reviveWait = 120
 
 Citizen.CreateThread(function()
     while true do
@@ -801,7 +800,7 @@ Citizen.CreateThread(function()
     end
 end)
 
--- Private Rivive Functions
+-- Private Revive Functions
 
 function revivePed(ped)
 	local playerPos = GetEntityCoords(ped, true)
@@ -853,3 +852,21 @@ function Draw3DText(x, y, z, text)
         DrawText(_x,_y)
     end
 end
+
+-- * export functions
+
+exports('isEmergencyJob', function()
+    return isCop or isEMS
+end)
+
+exports('isAdmin', function()
+    return isAdmin
+end)
+
+exports('getPermLevel', function()
+    return permLevel
+end)
+
+exports('isHandcuffed', function()
+    return handcuffed
+end)

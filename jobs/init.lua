@@ -7,5 +7,6 @@ async(
         vRP.loadScript("jobs", "client-jobs")
         vRP.loadScript("jobs", "gang/c-gang")
         vRP.loadScript("jobs", "stores/c-stores")
+        vRP.loadScript("jobs", "businesses/c-business")
     end
 )

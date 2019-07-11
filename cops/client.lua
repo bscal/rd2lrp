@@ -1,3 +1,5 @@
+local guiEnabled = false
+
 -- Client Jail Check Loop
 Citizen.CreateThread(
     function()
@@ -80,5 +82,71 @@ AddEventHandler(
                 args = {"Police", err}
             }
         )
+    end
+)
+
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(0)
+
+            if guiEnabled then
+                DisableControlAction(0, 1, guiEnabled) -- LookLeftRight
+                DisableControlAction(0, 2, guiEnabled) -- LookUpDown
+                DisableControlAction(0, 24, guiEnabled) -- Attack
+                DisableControlAction(0, 15, guiEnabled) -- ScrollUp
+                DisableControlAction(0, 14, guiEnabled) -- ScrollDown
+                DisableControlAction(0, 16, guiEnabled) -- ScrollUp
+                DisableControlAction(0, 17, guiEnabled) -- ScrollDown
+                DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
+                DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
+            else
+                EnableControlAction(0, 1, true) -- LookLeftRight
+                EnableControlAction(0, 2, true) -- LookUpDown
+                EnableControlAction(0, 24, true) -- Attack
+                EnableControlAction(0, 15, true) -- ScrollUp
+                EnableControlAction(0, 14, true) -- ScrollDown
+                EnableControlAction(0, 16, true) -- ScrollUp
+                EnableControlAction(0, 17, true) -- ScrollDown
+                EnableControlAction(0, 142, true) -- MeleeAttackAlternate
+                EnableControlAction(0, 106, true) -- VehicleMouseControlOverride
+            end
+
+            if IsControlJustPressed(0, 244) then -- M
+                enableGui(not guiEnabled)
+            end
+
+            if IsDisabledControlJustReleased(0, 142) then -- MeleeAttackAlternate
+                SendNUIMessage(
+                    {
+                        type = "click"
+                    }
+                )
+            end
+        end
+    end
+)
+
+function enableGui(enable)
+    guiEnabled = enable
+    SetNuiFocus(guiEnabled)
+    SendNUIMessage(
+        {
+            type = "display",
+            enable = guiEnabled
+        }
+    )
+end
+
+RegisterNUICallback(
+    "escape",
+    function(data)
+        enableGui(false)
+    end
+)
+
+RegisterNUICallback(
+    "clicked",
+    function(data)
     end
 )
