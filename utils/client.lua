@@ -17,10 +17,21 @@ Utils.tunnel = {}
 
 function Utils.tunnel:initPlayer()
     print("initilizing player...")
-    local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
-    vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
+    Citizen.CreateThread(function()
+        Citizen.Wait(1000)
+        local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
+        vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
 
-    vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
+        vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
+    end)
+end
+
+function Utils.tunnel:reloadPlayer()
+    Citizen.CreateThread(function()
+        Citizen.Wait(15000)
+        ExecuteCommand('restart Stances')
+        print("initilizing player complete!")
+    end)
 end
 
 vRP:registerExtension(Utils)
@@ -137,12 +148,16 @@ Citizen.CreateThread(
                 ShakeGameplayCam("JOLT_SHAKE", 3.0)
 
                 local ped = GetPlayerPed(-1)
+                print(rand)
                 if rand > 98 then
                     SetEntityHealth(ped, 100)
                     playerStress = 50
+                    exports.pNotify:SendNotification(
+                        {text = "<b style='color:red'>[Status]</b> You have passed out from being stressed", timeout = 7500}
+                    )
                 end
                 exports.pNotify:SendNotification(
-                    {text = "<b style='color:red'>[Status]</b> You have passed out from being stressed", timeout = 7500}
+                    {text = "<b style='color:red'>[Status]</b> You are extremely distressed", timeout = 7500}
                 )
             elseif playerStress > VERY_STRESSED then
                 ShakeGameplayCam("JOLT_SHAKE", 2.0)
@@ -245,6 +260,7 @@ Citizen.CreateThread(
     function()
         while true do
             Citizen.Wait(2500)
+            local ped = GetPlayerPed(-1)
             if drunkness > 0 then
                 drunkness = drunkness - 1
 
@@ -253,19 +269,19 @@ Citizen.CreateThread(
                     while (not HasAnimSetLoaded("MOVE_M@DRUNK@SLIGHTLYDRUNK")) do
                         Citizen.Wait(100)
                     end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@SLIGHTLYDRUNK", 0.25)
+                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@SLIGHTLYDRUNK", 1.0)
                 elseif (drunkness > medDrunk) then
                     RequestAnimSet("MOVE_M@DRUNK@MODERATEDRUNK")
                     while (not HasAnimSetLoaded("MOVE_M@DRUNK@MODERATEDRUNK")) do
                         Citizen.Wait(100)
                     end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@MODERATEDRUNK", 0.25)
+                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@MODERATEDRUNK", 1.0)
                 elseif (drunkness > heavyDrunk) then
                     RequestAnimSet("MOVE_M@DRUNK@VERYDRUNK")
                     while (not HasAnimSetLoaded("MOVE_M@DRUNK@VERYDRUNK")) do
                         Citizen.Wait(100)
                     end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@VERYDRUNK", 0.25)
+                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@VERYDRUNK", 1.0)
                 end
             elseif drunkness == 0 then
                 drunkness = -1
@@ -273,7 +289,7 @@ Citizen.CreateThread(
                 while (not HasAnimSetLoaded("move_m@casual@d")) do
                     Citizen.Wait(100)
                 end
-                SetPedMovementClipset(ped, "move_m@casual@d", 0.25)
+                SetPedMovementClipset(ped, "move_m@casual@d", 1.0)
             end
         end
     end
@@ -292,6 +308,52 @@ function drawTxt(x, y, width, height, scale, text, r, g, b, a)
     AddTextComponentString(text)
     DrawText(x - width / 2, y - height / 2 + 0.005)
 end
+
+-- * PedMovementClipset Command
+
+local walkStyles = {
+    ["brave"] = "move_m@brave",
+    ["casual"] = "move_m@casual@d",
+    ["jog"] = "move_m@JOG@"
+}
+
+RegisterCommand(
+    "walk",
+    function(source, args, rawCommand)
+        if #args < 2 then
+            local str = "Usage: /walk <stylename>. Styles: "
+            for k, _ in pairs(walkStyles) do
+                str = str .. k .. ", "
+            end
+
+            TriggerEvent(
+                "chat:addMessage",
+                {
+                    color = {0, 175, 255},
+                    multiline = false,
+                    args = {str}
+                }
+            )
+            return
+        end
+
+        local ped = GetPlayerPed(-1)
+        local style = walkStyles[args[2]]
+
+        RequestAnimSet(style)
+
+        while not HasAnimSetLoaded(style) do
+            Citizen.Wait(50)
+        end
+
+        SetPedMovementClipset(ped, style, 1.0)
+    end
+)
+
+--[[
+    COORDS
+    job1 - -258.60546875,-705.55871582032,34.27241897583
+]]
 
 -- * Drawing of speedomiter, location, direction
 

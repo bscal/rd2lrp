@@ -21,6 +21,8 @@ local nearEMS = false;
 local nearMDT = false;
 local mdtLoggedIn = false;
 
+local reviveWait = 120
+
 local policeCoords = {{name = "Police Station", x = 441.07467651368, y = -978.25646972656, z = 30.689603805542}, --main
                 {name = "Police Station", x = 1852.9038085938, y = 3690.0769042968, z = 34.267082214356}, --ss
                 {name = "Police Station", x = -449.4927368164, y = 6012.422855625, z = 31.71650314331}, --p
@@ -140,6 +142,7 @@ local fullyLoaded = false
 
 AddEventHandler('playerSpawned', function()
     fullyLoaded = true
+    reviveWait = 120
 end)
 
 AddEventHandler('cop:revivePlayer', function()
@@ -163,6 +166,11 @@ RegisterNetEvent('cop:clientIsAdmin')
 AddEventHandler('cop:clientIsAdmin', function(admin, perm)
     isAdmin = admin
     permLevel = perm
+    TriggerEvent('chat:addMessage', {
+        color = {255, 255, 255},
+        multiline = false,
+        args = {"You are Admin. Permission level ", perm}
+    })
 end)
 
 -- Commands
@@ -728,6 +736,12 @@ RegisterCommand('rmwarrant', function(source, args)
 	end
 end)
 
+RegisterCommand('rmallwarrants', function(source, args)
+    if isCop == true and canAccessMDT() then
+        vRPCopsS.removeAllWarrants(tonumber(args[1]))
+	end
+end)
+
 function canAccessMDT()
     local ped = GetPlayerPed(-1)
     local veh = GetVehiclePedIsIn(ped, false)
@@ -754,8 +768,6 @@ Citizen.CreateThread(function()
 end)
 
 -- EMS
-
-local reviveWait = 120
 
 Citizen.CreateThread(function()
     while true do
@@ -842,18 +854,19 @@ function Draw3DText(x, y, z, text)
 end
 
 -- * export functions
-function isEmergencyJob()
+
+exports('isEmergencyJob', function()
     return isCop or isEMS
-end
+end)
 
-function isAdmin()
+exports('isAdmin', function()
     return isAdmin
-end
+end)
 
-function getPermLevel()
+exports('getPermLevel', function()
     return permLevel
-end
+end)
 
-function isHandcuffed()
+exports('isHandcuffed', function()
     return handcuffed
-end
+end)

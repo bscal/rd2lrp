@@ -17,10 +17,12 @@ files {
     "lib/IDManager.lua",
     "lib/ActionDelay.lua",
     "lib/Luang.lua",
+    "configs/business.lua",
     "client.lua",
     "client-jobs.lua",
     "gang/c-gang.lua",
     "stores/c-stores.lua",
     "gang/s-gang.lua",
-    "stores/s-stores.lua"
+    "stores/s-stores.lua",
+    "businesses/c-business.lua"
 }

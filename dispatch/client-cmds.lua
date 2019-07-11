@@ -175,6 +175,22 @@ RegisterCommand(
     end
 )
 
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(1)
+            if (vRP.EXT.Garage:isInVehicle()) and hasKeys and isDriver() then
+                if not isRunning then
+                    local ped = GetPlayerPed(-1)
+                    local veh = GetVehiclePedIsIn(ped, false)
+                    SetVehicleUndriveable(veh, isRunning)
+                    SetVehicleEngineOn(veh, false, true, false)
+                end
+            end
+        end
+    end
+)
+
 local isRunning = true
 RegisterCommand(
     "eng",
@@ -184,22 +200,6 @@ RegisterCommand(
             local veh = GetVehiclePedIsIn(ped, false)
             SetVehicleUndriveable(veh, isRunning)
             isRunning = not isRunning
-        end
-    end
-)
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(20)
-            if (vRP.EXT.Garage:isInVehicle()) and hasKeys and isDriver() then
-                if not isRunning then
-                    local ped = GetPlayerPed(-1)
-                    local veh = GetVehiclePedIsIn(ped, false)
-                    SetVehicleUndriveable(veh, isRunning)
-                    SetVehicleEngineOn(veh, false, true, false)
-                end
-            end
         end
     end
 )
@@ -260,8 +260,8 @@ function isPlayerOwned()
     return false
 end
 
-function isDriver()
-    return true
+function isDriver(ped, veh)
+    return ped == GetPedInVehicleSeat(veh, -1)
 end
 
 function GetPlayers()

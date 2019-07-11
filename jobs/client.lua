@@ -4,23 +4,11 @@ vRPjobs = {}
 Tunnel.bindInterface("jobs", vRPjobs)
 Proxy.addInterface("jobs", vRPjobs)
 
--- ! Businesses and Roleplay jobs
-local offices = {
-    ["job"] = {x = 0, y = 0, z = 0, name = "Employment Office", blip = 0, color = 0, marker = 27},
-    ["business"] = {x = 0, y = 0, z = 0, name = "Employment Office", blip = 0, color = 0, marker = 27}
-}
-local buildings = {}
-
 -- ! Temp jobs/deliveries
 local deliveryJob = {
     {x = -425.2098083496, y = 6128.8266601562, z = 31.475679397584, name = "Delivery Job", blip = 67, color = 21},
     {x = 61.271408081054, y = 114.32566070556, z = 79.089897155762, name = "Delivery Job", blip = 67, color = 21}
 }
-local jobListings = {
-    ["Car Salesman"] = {salary = 1000},
-    ["Banker"] = {salary = 2000}
-}
-local currentJob = "Unemployed"
 
 local deliveryLocations = {
     {x = -290.15536499024, y = -1026.2470703125, z = 30.379957199096},
@@ -110,6 +98,8 @@ function vRPjobs.newDelivery(pos)
     SetNewWaypoint(currentDelivery.x, currentDelivery.y)
 end
 
+-- ! Functions
+
 function initBlips(jobtable)
     for k, v in pairs(jobtable) do
         if not v.hidden then
@@ -132,56 +122,3 @@ function ShowText(text, x, y)
     AddTextComponentString(text)
     DrawText(x, y)
 end
-
---! Businesses and Roleplay jobs
-Citizen.CreateThread(
-    function()
-        initBlips(offices)
-
-        while true do
-            Citizen.Wait(0)
-            local ped = GetPlayerPed(-1)
-            for _, v in pairs(offices) do
-                DrawMarker(v.marker, v.x, v.y, v.z - 1, 0, 0, 0, 0, 0, 0, 0.8, 0.8, 0.8, 55, 55, 255, 155, 0)
-                local pos = GetEntityCoords(ped, true)
-                local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
-                if (dist < 2.0) then
-                    ShowText("~y~Select Job", .4, .8)
-                end
-            end
-        end
-    end
-)
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(1000 * 60) -- 30 minutes
-            print("playcheck")
-            if exports["cops"]:isEmergencyJob() then
-                currentJob = "Emergency Worker"
-            elseif not currentJob then
-                currentJob = "Unemployed"
-            end
-            vRPjobsS._paycheck(currentJob)
-        end
-    end
-)
-
-AddEventHandler(
-    "playerSpawned",
-    function()
-        -- * gets the players current job
-        Citizen.Wait(30000)
-        currentJob = vRPjobsS.getCurrentJob()
-        print(currentJob)
-    end
-)
-
-RegisterNetEvent("jobs:setNewJob")
-AddEventHandler(
-    "jobs:setNewJob",
-    function(job)
-        vRPjobsS._setCurrentJob(job)
-    end
-)

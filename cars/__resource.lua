@@ -16,4 +16,5 @@ files {
     "lib/Luaoop.lua",
     "lib/Tunnel.lua",
     "c-cardoors.lua",
+    "client.lua",
 }

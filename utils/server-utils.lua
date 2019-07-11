@@ -10,9 +10,9 @@ Utils.event = {}
 
 function Utils.event:playerSpawn(user, first_spawn)
     if first_spawn then
-        print("FIRST " .. user.source)
         self.remote._initPlayer(user.source)
     end
+    self.remote._reloadPlayer(user.source)
 end
 
 vRP:registerExtension(Utils)

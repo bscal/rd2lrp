@@ -1,0 +1,17 @@
+body {
+    background-color: coral;
+    padding: 8vh;
+    height: 100vh;
+
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+ul {height:200px; width:367px;}
+ul {overflow:hidden; overflow-y:scroll;}
+
+ul::-webkit-scrollbar { width: 0 !important }
