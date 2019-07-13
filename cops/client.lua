@@ -6,7 +6,7 @@ Citizen.CreateThread(
         Citizen.Wait(5000)
         while true do
             Citizen.Wait(60000)
-            vRPCopsS.updateJailTime(GetPlayerPed(-1))
+            vRPCopsS._updateJailTime(GetPlayerPed(-1))
         end
     end
 )

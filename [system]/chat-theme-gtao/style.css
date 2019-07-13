@@ -110,7 +110,7 @@
 
 textarea {
     background: transparent;
-    border: calc(0.15625vw / 2) solid rgba(180, 180, 180, .6);
+    border: calc(0.15625vw / 2) solid rgba(180, 180, 180, 0);
     padding: calc(0.15625vw / 2);
     padding-left: calc(3.5% + (0.15625vw / 2));
 }

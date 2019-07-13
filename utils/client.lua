@@ -1,3 +1,20 @@
+-- * This resource is loaded twice once by vrp and once by fxserver.
+if not vRP then
+    -- * This is loaded regularly through fxserver to that exports can register
+    exports('incrementStress', function(value)
+        playerStress = playerStress + value
+    end)
+    
+    exports('getStress', function()
+        return playerStress
+    end)
+    
+    exports('setStress', function(value)
+        playerStress = value
+    end)
+    return
+end
+
 vRPclient = Tunnel.getInterface("vRP", "utils")
 vRPUtilS = Tunnel.getInterface("utils", "utils")
 
@@ -17,20 +34,18 @@ Utils.tunnel = {}
 
 function Utils.tunnel:initPlayer()
     print("initilizing player...")
-    Citizen.CreateThread(function()
-        Citizen.Wait(1000)
-        local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
-        vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
+    Citizen.Wait(1000)
+    local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
+    vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
 
-        vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
-    end)
+    vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
 end
 
 function Utils.tunnel:reloadPlayer()
     Citizen.CreateThread(function()
-        Citizen.Wait(15000)
-        ExecuteCommand('restart Stances')
-        print("initilizing player complete!")
+        --Citizen.Wait(10000)
+        --ExecuteCommand('restart Stances')
+        --print("initilizing player complete!")
     end)
 end
 
@@ -43,7 +58,7 @@ Citizen.CreateThread(
 
             -- Reduce Vehicle Density
             SetVehicleDensityMultiplierThisFrame(0.7)
-            SetParkedVehicleDensityMultiplierThisFrame(0.6)
+            SetParkedVehicleDensityMultiplierThisFrame(0.5)
 
             -- Online Players
             if (IsControlJustPressed(0, 214)) then
@@ -141,15 +156,15 @@ Citizen.CreateThread(
         math.randomseed(GetGameTimer())
         while true do
             Citizen.Wait(1000 * 60)
-            playerStress = playerStress + 10
+            playerStress = playerStress + 0.5
 
-            local rand = math.random(0, 100)
+            local rand = math.random(0, 1000)
             if playerStress > PANIC then
                 ShakeGameplayCam("JOLT_SHAKE", 3.0)
 
                 local ped = GetPlayerPed(-1)
                 print(rand)
-                if rand > 98 then
+                if rand > 900 then
                     SetEntityHealth(ped, 100)
                     playerStress = 50
                     exports.pNotify:SendNotification(
@@ -163,7 +178,7 @@ Citizen.CreateThread(
                 ShakeGameplayCam("JOLT_SHAKE", 2.0)
 
                 local ped = GetPlayerPed(-1)
-                if GetEntityHealth(ped) > 130 and rand < 250 then
+                if GetEntityHealth(ped) > 130 and rand < 300 then
                     ApplyDamageToPed(ped, 5, false)
                 end
                 exports.pNotify:SendNotification(
@@ -314,7 +329,19 @@ end
 local walkStyles = {
     ["brave"] = "move_m@brave",
     ["casual"] = "move_m@casual@d",
-    ["jog"] = "move_m@JOG@"
+    ["jog"] = "move_m@JOG@",
+    ["flee"] = "move_f@flee@a",
+    ["scared"] = "move_f@scared",
+    ["sexy"] = "move_f@sexy@a",
+    ["female_gang"] = "MOVE_F@GANGSTER@NG",
+    ["male_gang"] = "MOVE_M@GANGSTER@NG",
+    ["femme1"] = "MOVE_M@FEMME@",
+    ["femme2"] = "MOVE_F@FEMME@",
+    ["male_posh"] = "MOVE_M@POSH@",
+    ["female_posh"] = "MOVE_F@POSH@",
+    ["male_toughguy"] = "MOVE_M@TOUGH_GUY@",
+    ["female_toughguy"] ="MOVE_F@TOUGH_GUY@",
+    ["default"] = "default"
 }
 
 RegisterCommand(
@@ -338,15 +365,22 @@ RegisterCommand(
         end
 
         local ped = GetPlayerPed(-1)
-        local style = walkStyles[args[2]]
+        local style = walkStyles[args[1]]
 
-        RequestAnimSet(style)
+        if style == "default" then
+            ResetPedMovementClipset(ped)
+            ResetPedStrafeClipset(ped)
+            ResetPedWeaponMovementClipset(ped)
+        else
+            RequestAnimSet(style)
 
-        while not HasAnimSetLoaded(style) do
-            Citizen.Wait(50)
+            while not HasAnimSetLoaded(style) do
+                Citizen.Wait(50)
+            end
+        
+            SetPedMovementClipset(ped, style, 1.0)
+            RemoveAnimSet(style)
         end
-
-        SetPedMovementClipset(ped, style, 1.0)
     end
 )
 
@@ -354,170 +388,3 @@ RegisterCommand(
     COORDS
     job1 - -258.60546875,-705.55871582032,34.27241897583
 ]]
-
--- * Drawing of speedomiter, location, direction
-
-local zones = {
-    ["AIRP"] = "Los Santos International Airport",
-    ["ALAMO"] = "Alamo Sea",
-    ["ALTA"] = "Alta",
-    ["ARMYB"] = "Fort Zancudo",
-    ["BANHAMC"] = "Banham Canyon Dr",
-    ["BANNING"] = "Banning",
-    ["BEACH"] = "Vespucci Beach",
-    ["BHAMCA"] = "Banham Canyon",
-    ["BRADP"] = "Braddock Pass",
-    ["BRADT"] = "Braddock Tunnel",
-    ["BURTON"] = "Burton",
-    ["CALAFB"] = "Calafia Bridge",
-    ["CANNY"] = "Raton Canyon",
-    ["CCREAK"] = "Cassidy Creek",
-    ["CHAMH"] = "Chamberlain Hills",
-    ["CHIL"] = "Vinewood Hills",
-    ["CHU"] = "Chumash",
-    ["CMSW"] = "Chiliad Mountain State Wilderness",
-    ["CYPRE"] = "Cypress Flats",
-    ["DAVIS"] = "Davis",
-    ["DELBE"] = "Del Perro Beach",
-    ["DELPE"] = "Del Perro",
-    ["DELSOL"] = "La Puerta",
-    ["DESRT"] = "Grand Senora Desert",
-    ["DOWNT"] = "Downtown",
-    ["DTVINE"] = "Downtown Vinewood",
-    ["EAST_V"] = "East Vinewood",
-    ["EBURO"] = "El Burro Heights",
-    ["ELGORL"] = "El Gordo Lighthouse",
-    ["ELYSIAN"] = "Elysian Island",
-    ["GALFISH"] = "Galilee",
-    ["GOLF"] = "GWC and Golfing Society",
-    ["GRAPES"] = "Grapeseed",
-    ["GREATC"] = "Great Chaparral",
-    ["HARMO"] = "Harmony",
-    ["HAWICK"] = "Hawick",
-    ["HORS"] = "Vinewood Racetrack",
-    ["HUMLAB"] = "Humane Labs and Research",
-    ["JAIL"] = "Bolingbroke Penitentiary",
-    ["KOREAT"] = "Little Seoul",
-    ["LACT"] = "Land Act Reservoir",
-    ["LAGO"] = "Lago Zancudo",
-    ["LDAM"] = "Land Act Dam",
-    ["LEGSQU"] = "Legion Square",
-    ["LMESA"] = "La Mesa",
-    ["LOSPUER"] = "La Puerta",
-    ["MIRR"] = "Mirror Park",
-    ["MORN"] = "Morningwood",
-    ["MOVIE"] = "Richards Majestic",
-    ["MTCHIL"] = "Mount Chiliad",
-    ["MTGORDO"] = "Mount Gordo",
-    ["MTJOSE"] = "Mount Josiah",
-    ["MURRI"] = "Murrieta Heights",
-    ["NCHU"] = "North Chumash",
-    ["NOOSE"] = "N.O.O.S.E",
-    ["OCEANA"] = "Pacific Ocean",
-    ["PALCOV"] = "Paleto Cove",
-    ["PALETO"] = "Paleto Bay",
-    ["PALFOR"] = "Paleto Forest",
-    ["PALHIGH"] = "Palomino Highlands",
-    ["PALMPOW"] = "Palmer-Taylor Power Station",
-    ["PBLUFF"] = "Pacific Bluffs",
-    ["PBOX"] = "Pillbox Hill",
-    ["PROCOB"] = "Procopio Beach",
-    ["RANCHO"] = "Rancho",
-    ["RGLEN"] = "Richman Glen",
-    ["RICHM"] = "Richman",
-    ["ROCKF"] = "Rockford Hills",
-    ["RTRAK"] = "Redwood Lights Track",
-    ["SANAND"] = "San Andreas",
-    ["SANCHIA"] = "San Chianski Mountain Range",
-    ["SANDY"] = "Sandy Shores",
-    ["SKID"] = "Mission Row",
-    ["SLAB"] = "Stab City",
-    ["STAD"] = "Maze Bank Arena",
-    ["STRAW"] = "Strawberry",
-    ["TATAMO"] = "Tataviam Mountains",
-    ["TERMINA"] = "Terminal",
-    ["TEXTI"] = "Textile City",
-    ["TONGVAH"] = "Tongva Hills",
-    ["TONGVAV"] = "Tongva Valley",
-    ["VCANA"] = "Vespucci Canals",
-    ["VESP"] = "Vespucci",
-    ["VINE"] = "Vinewood",
-    ["WINDF"] = "Ron Alternates Wind Farm",
-    ["WVINE"] = "West Vinewood",
-    ["ZANCUDO"] = "Zancudo River",
-    ["ZP_ORT"] = "Port of South Los Santos",
-    ["ZQ_UAR"] = "Davis Quartz"
-}
-
-local directions = {
-    [0] = "N",
-    [45] = "NW",
-    [90] = "W",
-    [135] = "SW",
-    [180] = "S",
-    [225] = "SE",
-    [270] = "E",
-    [315] = "NE",
-    [360] = "N"
-}
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(0)
-            local pos = GetEntityCoords(GetPlayerPed(-1))
-            local var1, var2 =
-                GetStreetNameAtCoord(pos.x, pos.y, pos.z, Citizen.ResultAsInteger(), Citizen.ResultAsInteger())
-
-            for k, v in pairs(directions) do
-                direction = GetEntityHeading(GetPlayerPed())
-                if (math.abs(direction - k) < 22.5) then
-                    direction = v
-                    break
-                end
-            end
-
-            if (var2 ~= 0) then
-                drawTxt(
-                    0.515,
-                    1.22,
-                    1.0,
-                    1.0,
-                    0.4,
-                    "~w~[~y~" .. tostring(GetStreetNameFromHashKey(var2)) .. "~w~]",
-                    255,
-                    255,
-                    255,
-                    255
-                )
-            end
-
-            if (GetStreetNameFromHashKey(var1) and GetNameOfZone(pos.x, pos.y, pos.z)) then
-                if (zones[GetNameOfZone(pos.x, pos.y, pos.z)] and tostring(GetStreetNameFromHashKey(var1))) then
-                    drawTxt(
-                        0.515,
-                        1.25,
-                        1.0,
-                        1.0,
-                        0.4,
-                        direction ..
-                            "~b~ | ~y~" ..
-                                tostring(GetStreetNameFromHashKey(var1)) ..
-                                    " ~w~/ ~y~" .. zones[GetNameOfZone(pos.x, pos.y, pos.z)],
-                        255,
-                        255,
-                        255,
-                        255
-                    )
-                end
-            end
-
-            if (IsPedInAnyVehicle(GetPlayerPed(-1), false)) then
-                local speed = GetEntitySpeed(GetVehiclePedIsIn(GetPlayerPed(-1), false)) * 2.236936
-
-                drawTxt(0.665, 1.337, 1.0, 1.0, 0.7, "~y~" .. math.ceil(speed) .. "", 255, 255, 255, 255)
-                drawTxt(0.692, 1.337, 1.0, 1.0, 0.7, "~b~ mph", 255, 255, 255, 255)
-            end
-        end
-    end
-)

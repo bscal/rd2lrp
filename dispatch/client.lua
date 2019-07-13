@@ -120,8 +120,14 @@ Citizen.CreateThread(
     function()
         while true do
             Citizen.Wait(500)
+
+            if isCop or isEMS then
+                Citizen.Wait(100000)
+                return
+            end
+
             local ped = GetPlayerPed(-1)
-            if (vRP.EXT.Garage:isInVehicle()) and not isCop then
+            if IsPedInAnyVehicle(ped) then
                 local veh = GetVehiclePedIsIn(ped, false)
                 local driver = GetPedInVehicleSeat(veh, -1)
                 if (driver == ped) then

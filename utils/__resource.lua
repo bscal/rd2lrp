@@ -8,6 +8,7 @@ server_script {
 client_script {
     "@vrp/lib/utils.lua",
     "init.lua",
+    "client.lua"
     -- "client-phone.lua"
 }
 

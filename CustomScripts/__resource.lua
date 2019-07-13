@@ -3,7 +3,7 @@ server_scripts {
   "@vrp/lib/utils.lua",
   "commands-server.lua",
   "deathmessages-server.lua",
-  "weathersync-server.lua",
+  --"weathersync-server.lua",
   "dispatch-server.lua"
 }
 
@@ -11,7 +11,7 @@ server_scripts {
 client_scripts {
   "cfg/config.lua",
   "pointfinger-client.lua",
-  "handsup-client.lua",
+  --"handsup-client.lua",
   "stopwanted-client.lua",
   "deathmessages-client.lua",
   "missiontext-client.lua"

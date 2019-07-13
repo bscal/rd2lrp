@@ -16,7 +16,6 @@ local menuOpen = false
 
 Citizen.CreateThread(
     function()
-        print("Loading jobs...")
         initBlips(offices)
 
         while true do
@@ -29,7 +28,11 @@ Citizen.CreateThread(
                 if dist < 2.0 then
                     drawTxt(0.5, 0.8, 1.0, 1.0, 1.0, "~y~Select Job. ~p~H", 255, 255, 255, 255)
                     if IsControlJustPressed(0, 74) then
-                        print("pressed")
+                        if exports["cops"]:isEmergencyJob() then
+                            currentJob = "Emergency Worker"
+                        elseif not currentJob then
+                            currentJob = "Unemployed"
+                        end
                         vRPjobsS._openJobMenu(currentJob)
                         menuOpen = true
                     end

@@ -263,6 +263,16 @@ function vRPCops.isAdmin()
     return true
 end
 
+function vRPCops.isAdminToClient()
+    local user = vRP.users_by_source[source]
+    local results = exports["GHMattiMySQL"]:QueryResult("SELECT * FROM copadmins WHERE uid=@uid", {uid = user.id})
+    if #results < 1 then
+        TriggerClientEvent("cop:clientIsAdmin", user.source, false, 0)
+        return
+    end
+    TriggerClientEvent("cop:clientIsAdmin", user.source, true, results.perm)
+end
+
 function getCopData(userid, cid)
     local results =
         exports["GHMattiMySQL"]:QueryResult("SELECT * FROM cops WHERE uid=@uid AND cid=@cid", {uid = userid, cid = cid})
@@ -428,61 +438,102 @@ function vRPCops.showPhone(closestID)
 end
 
 -- Client Cop Abilities
-RegisterNetEvent("cuffServer")
-AddEventHandler(
-    "cuffServer",
-    function(closestID)
-        TriggerClientEvent("cuffClient", closestID)
-    end
-)
 
-RegisterNetEvent("unCuffServer")
-AddEventHandler(
-    "unCuffServer",
-    function(closestID)
-        TriggerClientEvent("unCuffClient", closestID)
-    end
-)
+RegisterServerEvent('police:confirmUnseat')
+AddEventHandler('police:confirmUnseat', function(t)
+	TriggerClientEvent('police:unseatme', t)
+end)
 
-RegisterNetEvent("dragServer")
-AddEventHandler(
-    "dragServer",
-    function(closestID)
-        TriggerClientEvent("dragClient", closestID, source)
-    end
-)
+RegisterServerEvent('police:dragRequest')
+AddEventHandler('police:dragRequest', function(t)
+	TriggerClientEvent('police:toggleDrag', t, source)
+end)
 
-RegisterNetEvent("unDragServer")
-AddEventHandler(
-    "unDragServer",
-    function(closestID)
-        TriggerClientEvent("unDragClient", closestID)
-    end
-)
+RegisterServerEvent('police:cuffGranted')
+AddEventHandler('police:cuffGranted', function(t, isCop)
+    TriggerClientEvent('police:getArrested', t, isCop, source)
+end)
 
-RegisterNetEvent("seatServer")
-AddEventHandler(
-    "seatServer",
-    function(closestID, veh)
-        TriggerClientEvent("seatClient", closestID, veh)
-    end
-)
+RegisterServerEvent('police:forceEnterAsk')
+AddEventHandler('police:forceEnterAsk', function(t, v)
+	TriggerClientEvent('police:forcedEnteringVeh', t, v)
+end)
 
-RegisterNetEvent("unSeatServer")
-AddEventHandler(
-    "unSeatServer",
-    function(closestID)
-        TriggerClientEvent("unSeatClient", closestID)
-    end
-)
+local function tryTakeItem(user, item, amount, dry)
+    return user:tryTakeItem(item, amount, dry, false)
+end
 
-RegisterNetEvent("putInServer")
-AddEventHandler(
-    "putInServer",
-    function(closestID)
-        TriggerClientEvent("putInClient", closestID)
-    end
-)
+function vRPCops.hasCuffs(cuffer)
+    return tryTakeItem(vRP.users_by_source[cuffer], "handcuff", 1, true)
+end
+
+function vRPCops.takeCuffs(cuffer)
+    tryTakeItem(vRP.users_by_source[cuffer], "handcuff", 1, false)
+end
+
+function vRPCops.hasPicklock(cuffer)
+    return tryTakeItem(vRP.users_by_source[cuffer], "lockpick", 1, true)
+end
+
+function vRPCops.takePicklock(cuffer)
+    tryTakeItem(vRP.users_by_source[cuffer], "lockpick", 1, false)
+end
+
+-- RegisterNetEvent("cuffServer")
+-- AddEventHandler(
+--     "cuffServer",
+--     function(closestID)
+--         TriggerClientEvent("cuffClient", closestID)
+--     end
+-- )
+
+-- RegisterNetEvent("unCuffServer")
+-- AddEventHandler(
+--     "unCuffServer",
+--     function(closestID)
+--         TriggerClientEvent("unCuffClient", closestID)
+--     end
+-- )
+
+-- RegisterNetEvent("dragServer")
+-- AddEventHandler(
+--     "dragServer",
+--     function(closestID)
+--         TriggerClientEvent("dragClient", closestID, source)
+--     end
+-- )
+
+-- RegisterNetEvent("unDragServer")
+-- AddEventHandler(
+--     "unDragServer",
+--     function(closestID)
+--         TriggerClientEvent("unDragClient", closestID)
+--     end
+-- )
+
+-- RegisterNetEvent("seatServer")
+-- AddEventHandler(
+--     "seatServer",
+--     function(closestID, veh)
+--         TriggerClientEvent("seatClient", closestID, veh)
+--     end
+-- )
+
+-- RegisterNetEvent("unSeatServer")
+-- AddEventHandler(
+--     "unSeatServer",
+--     function(closestID)
+--         TriggerClientEvent("unSeatClient", closestID)
+--     end
+-- )
+
+-- RegisterNetEvent("putInServer")
+-- AddEventHandler(
+--     "putInServer",
+--     function(closestID)
+--         TriggerClientEvent("putInClient", closestID)
+--     end
+-- )
 
 RegisterNetEvent("reviveServer")
 AddEventHandler(
@@ -492,20 +543,21 @@ AddEventHandler(
     end
 )
 
-RegisterNetEvent("panicServer")
-AddEventHandler(
-    "panicServer",
-    function(street)
-        _source = source
-        TriggerClientEvent(
-            "chatMessage",
-            -1,
-            "Police System",
-            {255, 255, 255},
-            "Officer ^2" .. GetPlayerName(_source) .. " ^7Has pushed their panic button. Location: " .. street
-        )
-    end
-)
+
+-- RegisterNetEvent("panicServer")
+-- AddEventHandler(
+--     "panicServer",
+--     function(street)
+--         _source = source
+--         TriggerClientEvent(
+--             "chatMessage",
+--             -1,
+--             "Police System",
+--             {255, 255, 255},
+--             "Officer ^2" .. GetPlayerName(_source) .. " ^7Has pushed their panic button. Location: " .. street
+--         )
+--     end
+-- )
 
 RegisterNetEvent("showIDServer")
 AddEventHandler(

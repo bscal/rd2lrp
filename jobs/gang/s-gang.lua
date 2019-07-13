@@ -15,9 +15,3 @@ local function isPlayerInGang(cid)
     end
     return true
 end
-
---! Mysql Queries
-exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS gang_memebers (gang_id INT, cid INT)")
-exports["GHMattiMySQL"]:Query(
-    "CREATE TABLE IF NOT EXISTS gangs (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(32), leader_cid INT, money INT, rep INT)"
-)

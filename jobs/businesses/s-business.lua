@@ -1,5 +1,9 @@
 local cfg = module("jobs", "configs/business")
 
+local LOWER = 600
+local MIDDLE = 1000
+local UPPER = 1500
+
 -- * Business table
 local businessList = {
     ["Emergency Worker"]        = {name = "Emergency Worker", btype = "job", salary = 800},
@@ -19,7 +23,8 @@ local businessList = {
     ["Car Salesman"]            = {name = "Car Salesman", btype = "business", salary = 800, downpay = 30000, cost = 100000},
     ["Car Repair"]              = {name = "Car Repair", btype = "business", salary = 800, downpay = 30000, cost = 100000},
     ["Car Exotic"]              = {name = "Car Exotic", btype = "business", salary = 1000, downpay = 250000, cost = 500000},
-    ["Company"]                 = {name = "Company", btype = "business", salary = 600, downpay = 20000, cost = 40000}
+    ["Company"]                 = {name = "Company", btype = "business", salary = 600, downpay = 20000, cost = 40000},
+    ["Store"]                   = {name = "Store", btype = "business", salary = 600, downpay = 20000, cost = 40000}
 }
 
 -- * Table of levels based on initLevels and levelup equation function
@@ -65,15 +70,17 @@ local function initMenu(self)
 
             local i = 1
             for k, v in pairs(businessList) do
-                businessList[k].id = i
-                menu:addOption(
-                    "<p style='color: red'>" .. k .. "</p>",
-                    m_jobs,
-                    "<p>TESTING 1 2 3 TEST TEST TESTINNNNGGG!</p>",
-                    v.name,
-                    v.id
-                )
-                i = i + 1
+                if v.btype == "job" then
+                    businessList[k].id = i
+                    menu:addOption(
+                        "<p style='color: red'>" .. k .. "</p>",
+                        m_jobs,
+                        "<p>TESTING 1 2 3 TEST TEST TESTINNNNGGG!</p>",
+                        v.name,
+                        v.id
+                    )
+                    i = i + 1
+                end
             end
         end
     )
@@ -84,8 +91,10 @@ initMenu(self)
 function vRPjobs.openJobMenu(jobName)
     local user = vRP.users_by_source[source]
     local menu = user:openMenu(MENU_NAME)
-    print("opening")
-    menu:updateOption(businessList[jobName].id, "<p style='color: green'>" .. jobName .. "</p>")
+    if businessList[jobName].id then
+        menu:updateOption(businessList[jobName].id, "<p style='color: green'>" .. jobName .. "</p>")
+    end
+    
 end
 
 function vRPjobs.closeJobMenu()
@@ -227,16 +236,6 @@ function vRPjobs.buyBusiness(bname)
         )
     end
 end
-
---! Mysql Queries
-exports["GHMattiMySQL"]:Query(
-    "CREATE TABLE IF NOT EXISTS user_jobs (cid INT, level INT DEFAULT 1, xp INT, job VARCHAR(32), last DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)"
-)
-
-exports["GHMattiMySQL"]:Query(
-    "CREATE TABLE IF NOT EXISTS user_business " ..
-        "(cid INT, bid INT PRIMARY KEY AUTO_INCREMENT, bowner INT, bname VARCHAR(32), bdisplay VARCHAR(32), worth INT DEFAULT 20000, buildings VARCHAR(128))"
-)
 
 -- * Client Jobs Functions
 function vRPjobs.taxiConstruct()

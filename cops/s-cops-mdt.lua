@@ -485,7 +485,7 @@ local function initTables()
         "CREATE TABLE IF NOT EXISTS cops (uid INT, cid INT, rank INT, callsign VARCHAR(2))",
         {}
     )
-    exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS copadmins (uid INT)", {})
+    exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS copadmins (uid INT, perm INT)", {})
     exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS judges (cid INT, perm INT)", {})
     exports["GHMattiMySQL"]:Query("CREATE TABLE IF NOT EXISTS rp_jail (uid INT, cid INT, time INT)", {})
     exports["GHMattiMySQL"]:Query(
@@ -494,7 +494,7 @@ local function initTables()
     )
     exports["GHMattiMySQL"]:Query(
         "CREATE TABLE IF NOT EXISTS mdt_warrant " ..
-            "(id INT NOT NULL PRIMARY KEY auto_increment, uid INT, cid INT, officer VARCHAR(32), warrants VARCHAR(255), date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, type VARCHAR(12))",
+            "(id INT NOT NULL PRIMARY KEY auto_increment, uid INT, cid INT, officer VARCHAR(32), warrants VARCHAR(255), date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)",
         {}
     )
     exports["GHMattiMySQL"]:Query(

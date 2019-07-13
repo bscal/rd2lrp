@@ -1,4 +1,5 @@
 dependency "vrp"
+dependency "utils"
 
 server_script {
     "@vrp/lib/utils.lua",

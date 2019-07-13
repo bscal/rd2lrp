@@ -1,21 +1,23 @@
-vRPclient = Tunnel.getInterface("vRP", "utils")
-vRPUtilsC = Tunnel.getInterface("utils", "utils")
+if vRP then
+    vRPclient = Tunnel.getInterface("vRP", "utils")
+    vRPUtilsC = Tunnel.getInterface("utils", "utils")
 
-vRPUtils = {}
-Tunnel.bindInterface("utils", vRPUtils)
-Proxy.addInterface("utils", vRPUtils)
+    vRPUtils = {}
+    Tunnel.bindInterface("utils", vRPUtils)
+    Proxy.addInterface("utils", vRPUtils)
 
-local Utils = class("Utils", vRP.Extension)
-Utils.event = {}
+    local Utils = class("Utils", vRP.Extension)
+    Utils.event = {}
 
-function Utils.event:playerSpawn(user, first_spawn)
-    if first_spawn then
-        self.remote._initPlayer(user.source)
+    function Utils.event:playerSpawn(user, first_spawn)
+        if first_spawn then
+            self.remote._initPlayer(user.source)
+        end
+        self.remote._reloadPlayer(user.source)
     end
-    self.remote._reloadPlayer(user.source)
-end
 
-vRP:registerExtension(Utils)
+    vRP:registerExtension(Utils)
+end
 
 local recentAds = {}
 local adPrice = 100
