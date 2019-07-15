@@ -34,19 +34,12 @@ Utils.tunnel = {}
 
 function Utils.tunnel:initPlayer()
     print("initilizing player...")
+    playerStress = vRPUtilS.getStress()
     Citizen.Wait(1000)
     local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
     vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
 
     vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
-end
-
-function Utils.tunnel:reloadPlayer()
-    Citizen.CreateThread(function()
-        --Citizen.Wait(10000)
-        --ExecuteCommand('restart Stances')
-        --print("initilizing player complete!")
-    end)
 end
 
 vRP:registerExtension(Utils)

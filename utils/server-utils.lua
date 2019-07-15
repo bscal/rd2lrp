@@ -13,44 +13,33 @@ if vRP then
         if first_spawn then
             self.remote._initPlayer(user.source)
         end
-        self.remote._reloadPlayer(user.source)
+    end
+
+    function Utils.event:save()
+        for _, v in pairs(vRP.users) do
+            local stress = vRPUtils.saveStress(v.source)
+            local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
+            exports["GHMattiMySQL"]:Query(querystring, {cid = v.cid, stress = stress})
+        end
     end
 
     vRP:registerExtension(Utils)
 end
 
-local recentAds = {}
-local adPrice = 100
-
-function vRPUtils.hasAdMoney()
+function vRPUtils.getStress()
     local user = vRP.users_by_source[source]
-    if (user:tryPayment(adPrice, false)) then
-        return true
+    local querystring = "SELECT stress FROM char_data WHERE cid=@cid"
+    local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
+    if #query < 1 then
+        return 0
     end
-    return false
+    return query[1].stress
 end
 
 function vRPUtils.sendTweet(msg)
     local user = vRP.users_by_source[source]
     local name = "@" .. user.identity.firstname .. user.identity.name .. " "
     vRPUtilsC.printTweet(-1, name, msg)
-end
-
-function vRPUtils.sendAd(msg)
-    local user = vRP.users_by_source[source]
-    local name = user.identity.firstname .. " " .. user.identity.name .. ": "
-    local formattedMsg = table.insert(recentAds, 1, name .. msg)
-    if (#recentAds > 5) then
-        table.remove(ads, 5)
-    end
-    vRPUtilsC.printAd(-1, name .. msg)
-end
-
-function vRPUtils.sendRecentAds(msg)
-    local user = vRP.users_by_source[source]
-    for k, v in pairs(recentAds) do
-        vRPUtilsC.printAd(user.source, v)
-    end
 end
 
 function vRPUtils.hasItem(item, amount, ritem, ramount)

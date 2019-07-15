@@ -1,5 +1,7 @@
 local cfg = module("jobs", "configs/business")
 
+local loans = module("jobs", "configs/loans")
+
 local LOWER = 600
 local MIDDLE = 1000
 local UPPER = 1500
@@ -59,6 +61,25 @@ local MENU_NAME = "jobs.select"
 
 local function m_jobs(menu, value)
     print(name, value)
+    local user = menu.user
+    local query = exports["GHMattiMySQL"]:QueryResult("SELECT * FROM user_jobs WHERE cid=@cid", {cid = user.cid})
+    if #query < 1 then
+        vRPjobsC._setJob(user.source, job)
+        vRPjobs.setCurrentJob(user, job)
+        return
+    end
+
+    if query[1].name == value then
+        return
+    end
+
+    if query[1].last < query[1].last + 3600 then -- Hour in seconds
+        vRP.EXT.Base.remote._notify(user.source, "~r~You can change jobs once per hour.")
+        return
+    end
+
+    vRPjobsC._setJob(user.source, job)
+    vRPjobs.setCurrentJob(user, job)
 end
 
 local function initMenu(self)
@@ -182,15 +203,14 @@ function sqlInfoCallback(msg)
     print(msg)
 end
 
-function vRPjobs.setCurrentJob(job)
-    local user = vRP.users_by_source[source]
+function vRPjobs.setCurrentJob(user, job)
     local querystring = ""
     if DoesCIDJobExist(user.cid) then
-        querystring = "UPDATE user_jobs SET job=@job, level=1, xp=0 WHERE cid=@cid"
+        querystring = "UPDATE user_jobs SET job=@job, level=1, xp=0, last=@last WHERE cid=@cid"
     else
-        querystring = "INSERT INTO user_jobs (cid, job, level, xp) VALUES (@cid, @job, 1, 0)"
+        querystring = "INSERT INTO user_jobs (cid, job, level, xp, last) VALUES (@cid, @job, 1, 0, @last)"
     end
-    exports["GHMattiMySQL"]:QueryAsync(querystring, {cid = user.cid, job = job, callback = sqlInfoCallback("success")})
+    exports["GHMattiMySQL"]:QueryAsync(querystring, {cid = user.cid, job = job, last = os.time(), callback = sqlInfoCallback("success")})
 end
 
 --[[
@@ -237,7 +257,68 @@ function vRPjobs.buyBusiness(bname)
     end
 end
 
--- * Client Jobs Functions
+-- ! Client Jobs Functions
+
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(1)
+
+        end
+    end
+)
+
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(60000)
+            
+        end
+    end
+)
+
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(60000 * 15)
+            -- * Gets all over due loan payments that are one week old
+            local querystring = "SELECT *, unix_timestamp(nextDue) as unixNextDue, unix_timestamp(timestampadd(WEEK, 1, unixNextDue)) as unixNextWeekDue, (nextDue > end) as isExpired FROM loans WHERE CURRENT_TIMESTAMP > nextDue"
+            local query = exports["GHMattiMySQL"]:QueryResult(querystring)
+            for k, v in pairs(query) do
+                print(k, v, v.nextDue)
+                local client = vRP.users_by_cid[v.client]
+                local msg = "Your loan("..v.id..") payment is overdue. Amount owed ~r~"..v.currentDebt.."$~w~. Please consult your banker or use /paydebt <id>"
+                vRP.EXT.Base.remote._notifyPicture(client.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan payment overdue", msg)
+
+                if v.unixNextDue > v.unixNextWeekDue and v.currentWeek + 1 < v.weeks then
+                    if v.currentDebt > 0 then
+                        querystring = "UPDATE loans SET missedPayments=missedPayments+1, currentDebt=@currentDebt, totalDebt=@totalDebt, currentWeek=currentWeek+1, nextDue=timestampadd(WEEK, 1, CURRENT_TIMESTAMP WHERE id=@id"
+                        exports["GHMattiMySQL"]:Query(querystring, {currentDebt = loans.getInterestOwed(v), totalDebt = v.currentDebt, id = v.id})
+                        
+                        querystring = "UPDATE char_data SET credit=credit-100 WHERE cid=@cid"
+                        exports["GHMattiMySQL"]:Query(querystring, {id = v.id})
+                    end
+                elseif v.isExpired and v.totalDebt < 1 then
+                    exports["GHMattiMySQL"]:Query("DELETE FROM loans WHERE id=@id", {id = v.id})
+                end
+            end
+        end
+    end
+)
+
+
+-- * Bankers
+function vRPjobs.bankConstruct()
+    local user = vRP.users_by_source[source]
+    exports["GHMattiMySQL"]:Query("INSERT INTO bankers (cid) VALUES (@cid)", {cid = user.cid})
+end
+
+function vRPjobs.bankDeconstruct()
+    local user = vRP.users_by_source[source]
+    exports["GHMattiMySQL"]:Query("DELETE FROM bankers WHERE cid=@cid", {cid = user.cid})
+end
+
+-- * Taxis
 function vRPjobs.taxiConstruct()
     local user = vRP.users_by_source[source]
     if not user:hasGroup("taxi") then

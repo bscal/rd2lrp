@@ -44,14 +44,34 @@ Citizen.CreateThread(
     end
 )
 
+-- * Draws markers from marker list. Returns true if standing in distance
+local function handlerMarker(ped, list, maxDist)
+    for _, v in pairs(list) do
+        DrawMarker(v.marker, v.x, v.y, v.z - 1, 0, 0, 0, 0, 0, 0, 0.8, 0.8, 1.0, 55, 55, 255, 155, 0)
+        local pos = GetEntityCoords(ped, true)
+        local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
+        if dist < maxDist then
+            return true
+        else
+            return false
+        end
+    end
+end
 
 -- * Job Tables
 
 local banker = {}
-banker['blips'] = {{x = 0.0, y = 0.0, z = 0.0, name = "Business Center", blip = 525, color = 5}}
+banker['blips'] = {{x = 0.0, y = 0.0, z = 0.0, name = "Loan Center", blip = 525, color = 5, v.marker}}
 function banker.constructor()
     for _, v in pairs(banker["blips"]) do
         initBlips(v)
+    end
+end
+
+function banker.update()
+    local ped = GetPlayerPed(-1)
+    if handlerMarker(ped, banker['blips'], 2.0) then
+        print("yes")
     end
 end
 
@@ -101,6 +121,13 @@ local jobs = {
     ["Car Exotic"] = carExotic,
     ["Company"] = company
 }
+
+function vRPjobs._setJob(job)
+    jobs[currentJob].deconstructor()
+    currentJob = job
+    jobs[currentJob].constructor()
+    vRP.EXT.Base.notify("You have been hired as an " .. job .. ".")
+end
 
 -- * Jobs Update Loop
 Citizen.CreateThread(
@@ -174,6 +201,13 @@ RegisterCommand(
     false
 )
 
+RegisterCommand("paydebt", function(source, args, rawCommand)
+    if #args > 2 or #args == 0 then
+        cmdHelp("/paydebt [loanid] - Pays your current loan payments. <loanid> is the id of the loan. If no loanid specified will use current loan.")
+        return
+    end
+end,false)
+
 RegisterNetEvent("jobs:setCurrentJob")
 AddEventHandler(
     "jobs:setCurrentJob",
@@ -182,14 +216,13 @@ AddEventHandler(
     end
 )
 
-RegisterNetEvent("jobs:setJob")
-AddEventHandler(
-    "jobs:setJob",
-    function(job)
-        vRPjobsS._setCurrentJob(job)
-        jobs[job].constructor()
-    end
-)
+function cmdHelp(msg)
+    TriggerEvent("chat:addMessage", {
+        color = {255, 255, 255},
+        multiline = true,
+        args = {"[Help]", msg}
+    })
+end
 
 function drawTxt(x, y, width, height, scale, text, r, g, b, a)
     SetTextFont(0)
