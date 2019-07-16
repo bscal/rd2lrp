@@ -1,3 +1,5 @@
+if not vRP then goto nonvRP end
+
 vRPclient = Tunnel.getInterface("vRP", "jobs")
 vRPjobsS = Tunnel.getInterface("jobs", "jobs")
 vRPjobs = {}
@@ -121,4 +123,85 @@ function ShowText(text, x, y)
     SetTextEntry("STRING")
     AddTextComponentString(text)
     DrawText(x, y)
+end
+
+--[[
+    !
+    ! NUI and UI
+    !
+]]
+
+::nonvRP::
+
+if not vRP then
+    local guiEnabled = false
+
+    Citizen.CreateThread(
+        function()
+            while true do
+                Citizen.Wait(0)
+
+                if guiEnabled then
+                    DisableControlAction(0, 1, guiEnabled) -- LookLeftRight
+                    DisableControlAction(0, 2, guiEnabled) -- LookUpDown
+                    DisableControlAction(0, 24, guiEnabled) -- Attack
+                    DisableControlAction(0, 15, guiEnabled) -- ScrollUp
+                    DisableControlAction(0, 14, guiEnabled) -- ScrollDown
+                    DisableControlAction(0, 16, guiEnabled) -- ScrollUp
+                    DisableControlAction(0, 17, guiEnabled) -- ScrollDown
+                    DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
+                    DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
+                else
+                    EnableControlAction(0, 1, true) -- LookLeftRight
+                    EnableControlAction(0, 2, true) -- LookUpDown
+                    EnableControlAction(0, 24, true) -- Attack
+                    EnableControlAction(0, 15, true) -- ScrollUp
+                    EnableControlAction(0, 14, true) -- ScrollDown
+                    EnableControlAction(0, 16, true) -- ScrollUp
+                    EnableControlAction(0, 17, true) -- ScrollDown
+                    EnableControlAction(0, 142, true) -- MeleeAttackAlternate
+                    EnableControlAction(0, 106, true) -- VehicleMouseControlOverride
+                end
+
+                if IsDisabledControlJustReleased(0, 142) then -- MeleeAttackAlternate
+                    SendNUIMessage(
+                        {
+                            type = "click"
+                        }
+                    )
+                end
+            end
+        end
+    )
+
+    local function enableGui(enable, window)
+        guiEnabled = enable
+        SetNuiFocus(guiEnabled)
+        SendNUIMessage(
+            {
+                type = "display",
+                enable = guiEnabled,
+                window = window
+            }
+        )
+    end
+
+    RegisterNUICallback(
+        "escape",
+        function(data)
+            enableGui(false, "*")
+        end
+    )
+
+    RegisterNUICallback(
+        "clicked",
+        function(data)
+            print(data)
+        end
+    )
+
+    RegisterNetEvent("jobs:enableWindow")
+    AddEventHandler("jobs:enableWindow", function(enabled, window)
+        enableGui(enabled, window)
+    end)
 end

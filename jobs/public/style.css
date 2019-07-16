@@ -1,0 +1,41 @@
+.loan-div {
+    position: fixed;
+    background-color: coral;
+    padding: 2vh;
+    top: 10vh;
+    height: 74vh;
+    left: 20vh;
+    right: 20vh;
+    vertical-align: middle;
+    max-height: 80vh;
+}
+
+#monitor {
+    position: absolute;
+    z-index: 1;
+    top: 7vh;
+    width: 160vh;
+    left: 19vh;
+    right: 19vh;
+    max-height: 80vh;
+}
+
+p {
+    font-size: 24px;
+}
+
+h2 {
+    text-shadow: 2px, 2px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/*
+ul {height:200px; width:367px;}
+ul {overflow:hidden; overflow-y:scroll;}
+
+ul::-webkit-scrollbar { width: 0 !important }
+*/

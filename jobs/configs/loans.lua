@@ -1,5 +1,10 @@
 local loansConfig = {}
 
+function round(val, decimal)
+    local exp = decimal and 10^decimal or 1
+    return math.ceil(val * exp - 0.5) / exp
+end
+
 local function maxPersonalLoanMoney(level)
     return 100000 + 25000 * level
 end
@@ -9,12 +14,7 @@ local function maxSecureLoanMoney(level)
 end
 
 local function getFee(amount)
-    return amount * 0.01
-end
-
-function round(val, decimal)
-    local exp = decimal and 10^decimal or 1
-    return math.ceil(val * exp - 0.5) / exp
+    return round(amount * 0.01)
 end
 
 function loansConfig.getInterestOwed(loan)
