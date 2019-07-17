@@ -1,6 +1,16 @@
 Vue.component('loan', {
     props: ["seen", "loan"],
-    template: '<li class="list-group-item" v-if="seen">{{loan.id}}, {{loan.amount}}</li>'
+    template: '<div v-if="seen" class="list-line-div"><li class="list-div">ID: {{loan.id}}, Loaned Amount: {{loan.amount}}$, Weekly Rate: {{loan.interest}}%, Start: {{loan.start}}, End: {{loan.end}}, # of Missed Payments: {{loan.missedPayments}}, Total Interst Owed: {{loan.totalInterest}}$, Current Payment Owed: {{loan.currentInterest}}$, Next Payment Due Date: {{loan.nextDue}}</li>'
+    + '<button v-on:click="onClick" type="button" class="btn button-div">Pay Weekly Payment</button>'
+    + '<input id="payCurrentAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">'
+    + '<button v-on:click="onClick" type="button" class="btn button-div">Payback Total Amount</button>'
+    + '<input id="payTotalAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></div>',
+    methods: {
+        onClick: function (event) {
+            let id = $(event.target).parent().html().split(',')[0].split(' ')[2]
+            console.log($(event.target).parent().html().split(',')[0].split(' ')[2])
+        }
+    }
 })
 
 Vue.component('player', {
@@ -19,7 +29,16 @@ var app = new Vue({
     data: {
         title: "Loan Management",
         seen: true,
-        loans: [{id: 1,amount: 100},{id: 2,amount: 500}]
+        loans: [{id: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
+        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},]
     }
 })
 

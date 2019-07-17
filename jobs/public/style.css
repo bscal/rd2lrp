@@ -1,31 +1,97 @@
 .loan-div {
-    position: fixed;
-    background-color: coral;
-    padding: 2vh;
-    top: 10vh;
-    height: 74vh;
-    left: 20vh;
-    right: 20vh;
-    vertical-align: middle;
-    max-height: 80vh;
+    position: absolute;
+    top: 4vh;
+    height: 96vh;
+    width: 100%;
+    background-color: rgb(211, 211, 211);
+}
+
+#cursor { 
+    position: absolute;
 }
 
 #monitor {
+    position: fixed;
+    z-index: 10;
+    height: 100vh;
+    width: 100vw;
+}
+
+#logo {
+    position: relative;
+    top: 2vh;
+    left: 3vw;
+    width: 200px;
+    height: 100px;
+}
+
+.list-div {
+    position: relative;
+    display: inline;
+    padding: 4px;
+}
+
+.button-div {
+    margin-left: 1vw;
+    position: relative;
+    max-width: 76vw;
+    display: inline;
+}
+
+.list-input {
+    max-width: 10vw;
+    margin-left: 1vw;
+    display: inline;
+}
+
+.list-line-div {
+    position: relative;
+    padding: 4px;
+    margin: 4px;
+    border-radius: 8px;
+    background-color: rgb(251, 102, 102);
+}
+
+.bar-div {
     position: absolute;
     z-index: 1;
-    top: 7vh;
-    width: 160vh;
-    left: 19vh;
-    right: 19vh;
-    max-height: 80vh;
+    height: calc(1vh + 8px);
+    top: 10vh;
+    background-color: rgb(209, 12, 12);
+}
+
+.footer-div {
+    position: sticky;
+    top: 96vh;
+    width: 100%;
+    height: 4vh;
 }
 
 p {
+    position: absolute;
+    top: 7vh;
+    left: 15vw;
     font-size: 24px;
 }
 
 h2 {
+    position: absolute;
+    text-decoration: underline;
+    top: 3vh;
+    left: 15vw;
     text-shadow: 2px, 2px;
+}
+
+ul {
+    position: absolute;
+    top: 21vh;
+    list-style-type: none;
+    height: 100vh;
+    max-height: 60vh;
+    width: 80vw;
+    z-index: 11;
+    overflow:hidden;
+    overflow-y:scroll;
 }
 
 .center {
@@ -33,9 +99,3 @@ h2 {
     justify-content: center;
     align-items: center;
 }
-/*
-ul {height:200px; width:367px;}
-ul {overflow:hidden; overflow-y:scroll;}
-
-ul::-webkit-scrollbar { width: 0 !important }
-*/
