@@ -1,27 +1,38 @@
 Vue.component('loan', {
     props: ["seen", "loan"],
-    template: '<div v-if="seen" class="list-line-div"><li class="list-div">ID: {{loan.id}}, Loaned Amount: {{loan.amount}}$, Weekly Rate: {{loan.interest}}%, Start: {{loan.start}}, End: {{loan.end}}, # of Missed Payments: {{loan.missedPayments}}, Total Interst Owed: {{loan.totalInterest}}$, Current Payment Owed: {{loan.currentInterest}}$, Next Payment Due Date: {{loan.nextDue}}</li>'
-    + '<button v-on:click="onClick" type="button" class="btn button-div">Pay Weekly Payment</button>'
-    + '<input id="payCurrentAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">'
-    + '<button v-on:click="onClick" type="button" class="btn button-div">Payback Total Amount</button>'
-    + '<input id="payTotalAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></div>',
+    template: '<div v-if="seen" class="list-line-div"><li class="list-div">ID: {{loan.id}}, Loaned Amount: {{loan.amount}}$, Weekly Rate: {{loan.interest}}%, # of Missed Payments: {{loan.missedPayments}}, Total Interst Owed: {{loan.totalInterest}}$, Current Payment Owed: {{loan.currentInterest}}$, Next Payment Due Date: {{loan.nextDue}} Start Date: {{loan.start}}, End Date: {{loan.end}},</li>'
+    + '<button id="payCurrentAmount" v-on:click="onClick" type="button" class="btn button-div" data-toggle="tooltip" data-placement="bottom" title="Attempts to pay off your loans weekly payment. Will use bank if not enough cash.">Pay Weekly Payment</button>'
+    //+ '<input id="payCurrentAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">'
+    + '<button id="payTotalAmount" v-on:click="onClick" type="button" class="btn button-div" data-toggle="tooltip" data-placement="bottom" title="Will payoff current debt on the loan then will payback current owed amount.">Payback loan</button>'
+    + '<input id="inputTotalAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">$</div>',
     methods: {
         onClick: function (event) {
-            let id = $(event.target).parent().html().split(',')[0].split(' ')[2]
-            console.log($(event.target).parent().html().split(',')[0].split(' ')[2])
+            let target = event.target
+            let id = $(target).parent().html().split(',')[0].split(' ')[2]
+            let button = $(target).attr("id")
+            let input = $(target).parent().find("#inputTotalAmount")
+            console.log(id, button, $(input).val())
+            jobsPressed(id, $(input).html(), $(input).val())
         }
     }
 })
 
+function jobsPressed(loanid, elementid, value) {
+    $.post('http://jobs/onPressed', JSON.stringify({
+        loanid: loanid,
+        elementid: elementid,
+        value: value
+    }));
+}
+
 Vue.component('player', {
-    data: function() {
-        return {
-            fname: "lebron",
-            lname: "james"
-        }
-    },
-    props: ["seen"],
-    template: '<p v-if="seen">Loans for: {{lname}}, {{fname}}</p>'
+    props: ["seen", "name",],
+    template: '<p v-if="seen">Loans for: {{name}}</p>'
+})
+
+Vue.component('money', {
+    props: ["seen", "cash", "bank",],
+    template: '<p v-if="seen">Current Cash: {{cash}}$ | Bank Account Balance: {{bank}}$</p>'
 })
 
 var app = new Vue({
@@ -29,16 +40,6 @@ var app = new Vue({
     data: {
         title: "Loan Management",
         seen: true,
-        loans: [{id: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},
-        {d: 1,amount: 100, interest: 0.2, start: "1/2/51", end: "12/25/2", missedPayments: 2, totalInterest: 50000, currentInterest: 25000, nextDue: "1/1/1"},]
     }
 })
 
@@ -70,7 +71,9 @@ window.addEventListener("message", function(event) {
         if (data.enable) {
             vm.seen = true
             vm.loans = data.loans
-            vm.user = data.user
+            vm.name = data.name
+            vm.cash = data.cash
+            vm.bank = data.bank
         }
         else {
             vm.seen = false
@@ -111,3 +114,7 @@ function sendToServer(form) {
         id: form.getElementById("id").value
     }));
 }
+
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})

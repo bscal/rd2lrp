@@ -174,14 +174,17 @@ if not vRP then
         end
     )
 
-    local function enableGui(enable, window)
+    local function enableGui(enable, name, loans, cash, bank)
         guiEnabled = enable
         SetNuiFocus(guiEnabled)
         SendNUIMessage(
             {
                 type = "display",
                 enable = guiEnabled,
-                window = window
+                name = name,
+                loans = loans,
+                cash = cash,
+                bank = bank
             }
         )
     end
@@ -200,8 +203,23 @@ if not vRP then
         end
     )
 
+    RegisterNUICallback(
+        "onPressed",
+        function(data)
+            print(data.loanid, data.elementid, data.value)
+        end
+    )
+
     RegisterNetEvent("jobs:enableWindow")
-    AddEventHandler("jobs:enableWindow", function(enabled, window)
-        enableGui(enabled, window)
+    AddEventHandler("jobs:enableWindow", function(enabled, name, loans, cash, bank)
+        enableGui(enabled, name, loans, cash, bank)
     end)
+
+    RegisterCommand("openLoans", function(source, args, rawCommand)
+        vRPjobsS.enableGui(true)
+    end, false)
+
+    RegisterCommand("giveloan", function(source, args, rawCommand)
+        vRPjobsS.createLoan(source, "Personals", 10000, 0.08, 10)
+    end, false)
 end

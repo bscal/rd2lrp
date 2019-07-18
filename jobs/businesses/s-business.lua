@@ -282,24 +282,38 @@ Citizen.CreateThread(
         while true do
             Citizen.Wait(60000 * 15)
             -- * Gets all over due loan payments that are one week old
-            local querystring = "SELECT *, unix_timestamp(nextDue) as unixNextDue, unix_timestamp(timestampadd(WEEK, 1, unixNextDue)) as unixNextWeekDue, (nextDue > end) as isExpired FROM loans WHERE CURRENT_TIMESTAMP > nextDue"
+            local querystring = "SELECT *, (nextDue > end) as isExpired FROM loans WHERE CURRENT_TIMESTAMP > nextDue"
             local query = exports["GHMattiMySQL"]:QueryResult(querystring)
             for k, v in pairs(query) do
                 print(k, v, v.nextDue)
                 local client = vRP.users_by_cid[v.client]
-                local msg = "Your loan("..v.id..") payment is overdue. Amount owed ~r~"..v.currentDebt.."$~w~. Please consult your banker or use /paydebt <id>"
-                vRP.EXT.Base.remote._notifyPicture(client.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan payment overdue", msg)
 
-                if v.unixNextDue > v.unixNextWeekDue and v.currentWeek + 1 < v.weeks then
-                    if v.currentDebt > 0 then
-                        querystring = "UPDATE loans SET missedPayments=missedPayments+1, currentDebt=@currentDebt, totalDebt=@totalDebt, currentWeek=currentWeek+1, nextDue=timestampadd(WEEK, 1, CURRENT_TIMESTAMP WHERE id=@id"
-                        exports["GHMattiMySQL"]:Query(querystring, {currentDebt = loans.getInterestOwed(v), totalDebt = v.currentDebt, id = v.id})
-                        
-                        querystring = "UPDATE char_data SET credit=credit-100 WHERE cid=@cid"
-                        exports["GHMattiMySQL"]:Query(querystring, {id = v.id})
-                    end
-                elseif v.isExpired and v.totalDebt < 1 then
-                    exports["GHMattiMySQL"]:Query("DELETE FROM loans WHERE id=@id", {id = v.id})
+                if client then
+                    local msg = "Your loan("..v.id..") payment is overdue. Amount owed ~r~"..v.currentDebt.."$~w~. Please consult your banker or use /paydebt <id>"
+                    vRP.EXT.Base.remote._notifyPicture(client.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan payment overdue", msg)
+                end
+
+                if v.currentDebt > 0 and v.currentWeek + 1 <= v.weeks then -- They have missed a payment for that week
+                    querystring = "UPDATE loans SET missedPayments=missedPayments+1, currentDebt=@currentDebt, totalDebt=@totalDebt, currentWeek=currentWeek+1, nextDue=timestampadd(WEEK, 1, CURRENT_TIMESTAMP WHERE id=@id"
+                    exports["GHMattiMySQL"]:Query(querystring, {currentDebt = loans.getInterestOwed(v), totalDebt = v.currentDebt, id = v.id})
+
+                    querystring = "UPDATE char_data SET IF(credit-50 <= 0,credit=credit ,credit=credit-50) WHERE cid=@cid"
+                    exports["GHMattiMySQL"]:Query(querystring, {cid = v.client})
+
+                elseif v.currentDebt < 1 and v.currentWeek + 1 >= v.weeks then -- They have payed their payment for that week
+                    querystring = "UPDATE loans SET currentDebt=@currentDebt, currentWeek=currentWeek+1, nextDue=timestampadd(WEEK, 1, CURRENT_TIMESTAMP WHERE id=@id"
+                    exports["GHMattiMySQL"]:Query(querystring, {currentDebt = loans.getInterestOwed(v), id = v.id})
+                end
+
+                if v.isExpired  then
+                    if v.totalDebt < 1 then -- Expired and fully paid
+                        exports["GHMattiMySQL"]:Query("DELETE FROM loans WHERE id=@id", {id = v.id})
+                    else -- Expired and not fully paid
+                        querystring = "UPDATE char_data SET IF(credit-100 <= 0,credit=credit ,credit=credit-100) WHERE cid=@cid"
+                        exports["GHMattiMySQL"]:Query(querystring, {cid = v.client})
+
+                        querystring = "UPDATE loans SET currentDebt=currentDebt+(currentDebt * interest) WHERE cid=@cid"
+                        exports["GHMattiMySQL"]:Query(querystring, {cid = v.client})
                 end
             end
         end
@@ -316,6 +330,43 @@ end
 function vRPjobs.bankDeconstruct()
     local user = vRP.users_by_source[source]
     exports["GHMattiMySQL"]:Query("DELETE FROM bankers WHERE cid=@cid", {cid = user.cid})
+end
+
+local MIN_INTEREST_PERSONAL      = 0.075
+local MIN_INTEREST_SECURE           = 0.055
+function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
+    local client = vRP.users_by_source[source]
+    local banker = vRP.users_by_source[bankerid]
+
+    if type == "Personal" and interest < MIN_INTEREST_PERSONAL then
+        return
+    elseif type == "Secure" and interest < MIN_INTEREST_SECURE then
+        return
+    end
+
+    if bankerid ~= -1 then
+        local querystring = "SELECT totalLoanedOut FROM bankers WHERE cid=@cid"
+        local bankerQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = banker.cid})
+
+        querystring = "SELECT level FROM user_jobs WHERE cid=@cid"
+        local jobsQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = banker.cid})
+
+        local maxLoanMoney = loans.maxPersonalLoanMoney(jobsQuery[0].level)
+        if bankerQuery + amount > maxLoanMoney then
+            return
+        end
+    end
+
+    -- Success
+    local querystring = "INSERT INTO loans (banker, client, type, amount, interest, weeks, end, nextDue) VALUES (@banker, @client, @type, @amount, @interest, @weeks, TIMESTAMPADD(WEEK, @weeks, CURRENT_TIMESTAMP), TIMESTAMPADD(WEEK, 1, CURRENT_TIMESTAMP)"
+    exports["GHMattiMySQL"]:Query(querystring, {banker = banker.cid, client = client.cid, type = type, amount = amount, interest = interest, weeks = weeks})
+end
+
+function vRPjobs.enableGUI(enabled)
+    local user = vRP.users_by_source[source]
+    local querystring = "SELECT * FROM loans WHERE client=@cid"
+    local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
+    TriggerClientEvent("jobs:enableWindow", user.source, enabled, user.identity.name..", "..user.identity.firstname, query[1], user:getWallet(), user:getBank())
 end
 
 -- * Taxis

@@ -1,13 +1,9 @@
-.loan-div {
-    position: absolute;
-    top: 4vh;
-    height: 96vh;
-    width: 100%;
-    background-color: rgb(211, 211, 211);
-}
-
 #cursor { 
     position: absolute;
+}
+
+#payTotalAmount {
+    margin-left: 3vw;
 }
 
 #monitor {
@@ -19,10 +15,18 @@
 
 #logo {
     position: relative;
-    top: 2vh;
+    top: 3vh;
     left: 3vw;
-    width: 200px;
-    height: 100px;
+    width: 12vw;
+    height: 12vh;
+}
+
+.loan-div {
+    position: absolute;
+    top: 4vh;
+    height: 95vh;
+    width: 100%;
+    background-color: rgb(211, 211, 211);
 }
 
 .list-div {
@@ -54,9 +58,10 @@
 
 .bar-div {
     position: absolute;
-    z-index: 1;
-    height: calc(1vh + 8px);
-    top: 10vh;
+    z-index: 5;
+    height: 2vh;
+    width: 100%;
+    top: 4vh;
     background-color: rgb(209, 12, 12);
 }
 
@@ -67,18 +72,35 @@
     height: 4vh;
 }
 
+.money-div {
+    top: 10vh;
+    text-align: right;
+    overflow: hidden;
+}
+
+.bottom {
+    position: absolute;
+    top: 92vh;
+    font-size: 0.75vw;
+    left: 56vw;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif
+}
+
 p {
     position: absolute;
     top: 7vh;
-    left: 15vw;
-    font-size: 24px;
+    left: 67vw;
+    font-size: 1vw;
 }
 
 h2 {
     position: absolute;
     text-decoration: underline;
-    top: 3vh;
-    left: 15vw;
+    top: 6vh;
+    left: 16vw;
     text-shadow: 2px, 2px;
 }
 

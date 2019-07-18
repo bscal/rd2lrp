@@ -201,13 +201,6 @@ RegisterCommand(
     false
 )
 
-RegisterCommand("paydebt", function(source, args, rawCommand)
-    if #args > 2 or #args == 0 then
-        cmdHelp("/paydebt [loanid] - Pays your current loan payments. <loanid> is the id of the loan. If no loanid specified will use current loan.")
-        return
-    end
-end,false)
-
 RegisterNetEvent("jobs:setCurrentJob")
 AddEventHandler(
     "jobs:setCurrentJob",
