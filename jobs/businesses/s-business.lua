@@ -314,6 +314,7 @@ Citizen.CreateThread(
 
                         querystring = "UPDATE loans SET currentDebt=currentDebt+(currentDebt * interest) WHERE cid=@cid"
                         exports["GHMattiMySQL"]:Query(querystring, {cid = v.client})
+                    end
                 end
             end
         end

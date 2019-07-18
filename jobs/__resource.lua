@@ -7,10 +7,19 @@ server_script {
 
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua"
+    "init.lua",
+    "client.lua"
 }
 
+ui_page("public/index.html")
+
 files {
+    "public/index.html",
+    "public/main.js",
+    "public/style.css",
+    "public/monitor.png",
+    "public/logo.png",
+    "public/cursor.png",
     "lib/Luaoop.lua",
     "lib/Tunnel.lua",
     "lib/Proxy.lua",
