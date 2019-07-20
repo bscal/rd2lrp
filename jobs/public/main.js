@@ -39,7 +39,7 @@ var app = new Vue({
     el: '#app',
     data: {
         title: "Loan Management",
-        seen: true,
+        seen: false,
     }
 })
 
@@ -69,14 +69,18 @@ window.addEventListener("message", function(event) {
     console.log(`NUIMessage: ${event.data.type}`)
     if (data.type == "display") {
         if (data.enable) {
+            $(document.body).show();
             vm.seen = true
             vm.loans = data.loans
             vm.name = data.name
             vm.cash = data.cash
             vm.bank = data.bank
+            toggleVisible("#container", true)
         }
         else {
+            $(document.body).hide();
             vm.seen = false
+            toggleVisible("#container", false)
         }
     }
     else if (data.type == "click") {
@@ -85,7 +89,8 @@ window.addEventListener("message", function(event) {
 });
 
 $(function() {
-    $(document.body).show();
+    $(document.body).hide();
+    $("#container").hide()
 
     $(document).mousemove(function(event) {
         cursorX = event.pageX;

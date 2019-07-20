@@ -1,29 +1,35 @@
-if vRP then
-    vRPclient = Tunnel.getInterface("vRP", "utils")
-    vRPUtilsC = Tunnel.getInterface("utils", "utils")
+vRPclient = Tunnel.getInterface("vRP", "utils")
+vRPUtilsC = Tunnel.getInterface("utils", "utils")
 
-    vRPUtils = {}
-    Tunnel.bindInterface("utils", vRPUtils)
-    Proxy.addInterface("utils", vRPUtils)
+vRPUtils = {}
+Tunnel.bindInterface("utils", vRPUtils)
+Proxy.addInterface("utils", vRPUtils)
 
-    local Utils = class("Utils", vRP.Extension)
-    Utils.event = {}
+local Utils = class("Utils", vRP.Extension)
+Utils.event = {}
 
-    function Utils.event:playerSpawn(user, first_spawn)
-        if first_spawn then
-            self.remote._initPlayer(user.source)
-        end
+function Utils.event:playerSpawn(user, first_spawn)
+    if first_spawn then
+        self.remote._initPlayer(user.source)
     end
+end
 
-    function Utils.event:save()
-        for _, v in pairs(vRP.users) do
-            local stress = vRPUtils.saveStress(v.source)
-            local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
-            exports["GHMattiMySQL"]:Query(querystring, {cid = v.cid, stress = stress})
-        end
+function Utils.event:save()
+    for k, _ in pairs(vRP.users) do
+        vRPUtilsC._saveStress(k)
+        print(k)
     end
+end
 
-    vRP:registerExtension(Utils)
+vRP:registerExtension(Utils)
+
+function vRPUtil.saveStress(stress)
+    local user = vRP.users_by_source[source]
+    if not stress then
+        return
+    end
+    local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
+    exports["GHMattiMySQL"]:Query(querystring, {cid = user.cid, stress = stress})
 end
 
 function vRPUtils.getStress()
@@ -31,8 +37,9 @@ function vRPUtils.getStress()
     local querystring = "SELECT stress FROM char_data WHERE cid=@cid"
     local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
     if #query < 1 then
-        return 0
+        return 0.0
     end
+    print(query[1].stress)
     return query[1].stress
 end
 

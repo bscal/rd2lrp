@@ -2,13 +2,14 @@ dependency "vrp"
 
 server_script {
     "@vrp/lib/utils.lua",
-    "server.lua"
+    "server.lua",
+    --"server-utils.lua"
 }
 
 client_script {
     "@vrp/lib/utils.lua",
     "init.lua",
-    "client.lua"
+    --"client.lua"
     -- "client-phone.lua"
 }
 

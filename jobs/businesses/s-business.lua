@@ -363,7 +363,8 @@ function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
     exports["GHMattiMySQL"]:Query(querystring, {banker = banker.cid, client = client.cid, type = type, amount = amount, interest = interest, weeks = weeks})
 end
 
-function vRPjobs.enableGUI(enabled)
+function vRPjobs.testGUI(enabled)
+    print("is this working?")
     local user = vRP.users_by_source[source]
     local querystring = "SELECT * FROM loans WHERE client=@cid"
     local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
@@ -382,3 +383,5 @@ function vRPjobs.taxiDeconstruct()
     local user = vRP.users_by_source[source]
     user:removeGroup("taxi")
 end
+
+print("TESTING __________________________")

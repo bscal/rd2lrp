@@ -8,7 +8,7 @@ server_script {
 client_script {
     "@vrp/lib/utils.lua",
     "init.lua",
-    "client.lua"
+    --"client.lua"
 }
 
 ui_page("public/index.html")

@@ -1,20 +1,3 @@
--- * This resource is loaded twice once by vrp and once by fxserver.
-if not vRP then
-    -- * This is loaded regularly through fxserver to that exports can register
-    exports('incrementStress', function(value)
-        playerStress = playerStress + value
-    end)
-    
-    exports('getStress', function()
-        return playerStress
-    end)
-    
-    exports('setStress', function(value)
-        playerStress = value
-    end)
-    return
-end
-
 vRPclient = Tunnel.getInterface("vRP", "utils")
 vRPUtilS = Tunnel.getInterface("utils", "utils")
 
@@ -43,6 +26,11 @@ function Utils.tunnel:initPlayer()
 end
 
 vRP:registerExtension(Utils)
+
+function vRPUtil.saveStress()
+    print(playerStress)
+    vRPUtilS._saveStress(playerStress)
+end
 
 Citizen.CreateThread(
     function()
@@ -381,3 +369,17 @@ RegisterCommand(
     COORDS
     job1 - -258.60546875,-705.55871582032,34.27241897583
 ]]
+
+-- * This resource is loaded twice once by vrp and once by fxserver.
+    -- * This is loaded regularly through fxserver to that exports can register
+    exports('incrementStress', function(value)
+        playerStress = playerStress + value
+    end)
+    
+    exports('getStress', function()
+        return playerStress
+    end)
+    
+    exports('setStress', function(value)
+        playerStress = value
+    end)

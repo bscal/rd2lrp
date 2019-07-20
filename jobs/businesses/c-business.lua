@@ -61,7 +61,7 @@ end
 -- * Job Tables
 
 local banker = {}
-banker['blips'] = {{x = 0.0, y = 0.0, z = 0.0, name = "Loan Center", blip = 525, color = 5, v.marker}}
+banker['blips'] = {{x = 0.0, y = 0.0, z = 0.0, name = "Loan Center", blip = 525, color = 5, marker=27}}
 function banker.constructor()
     for _, v in pairs(banker["blips"]) do
         initBlips(v)
@@ -133,7 +133,7 @@ end
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(1)
+            Citizen.Wait(20)
             if not currentJob or not jobs[currentJob] or not jobs[currentJob].update() then
                 return
             end

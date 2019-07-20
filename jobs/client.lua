@@ -1,17 +1,14 @@
-if not vRP then goto nonvRP end
-
 vRPclient = Tunnel.getInterface("vRP", "jobs")
 vRPjobsS = Tunnel.getInterface("jobs", "jobs")
+
 vRPjobs = {}
 Tunnel.bindInterface("jobs", vRPjobs)
 Proxy.addInterface("jobs", vRPjobs)
-
 -- ! Temp jobs/deliveries
 local deliveryJob = {
     {x = -425.2098083496, y = 6128.8266601562, z = 31.475679397584, name = "Delivery Job", blip = 67, color = 21},
     {x = 61.271408081054, y = 114.32566070556, z = 79.089897155762, name = "Delivery Job", blip = 67, color = 21}
 }
-
 local deliveryLocations = {
     {x = -290.15536499024, y = -1026.2470703125, z = 30.379957199096},
     {x = 642.75909423828, y = 276.9309387207, z = 103.19207763672},
@@ -21,18 +18,15 @@ local deliveryLocations = {
     {x = -144.14375305176, y = 6354.2202148438, z = 31.490629196166},
     {x = 2692.6315917968, y = 3453.1118164062, z = 55.790252685546}
 }
-
 local isDeliveryJob = false
 local deliveriesDone = 0
 local vehicle = nil
 local currentDelivery = nil
 local deliveryDist = 0
-
 -- * Delivery Job Marker Manage Loop
 Citizen.CreateThread(
     function()
         initBlips(deliveryJob)
-
         while true do
             Citizen.Wait(0)
             local ped = GetPlayerPed(-1)
@@ -74,7 +68,6 @@ Citizen.CreateThread(
                     for k, v in pairs(deliveryLocations) do
                         if (v.x == currentDelivery.x) then
                             DrawMarker(1, v.x, v.y, v.z - 1, 0, 0, 0, 0, 0, 0, 0.8, 0.8, 0.8, 55, 55, 255, 155, 0)
-
                             local ped = GetPlayerPed(-1)
                             local pos = GetEntityCoords(ped, true)
                             local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
@@ -101,7 +94,6 @@ function vRPjobs.newDelivery(pos)
 end
 
 -- ! Functions
-
 function initBlips(jobtable)
     for k, v in pairs(jobtable) do
         if not v.hidden then
@@ -125,101 +117,91 @@ function ShowText(text, x, y)
     DrawText(x, y)
 end
 
+RegisterCommand("openLoans", function(source, args, rawCommand)
+    vRPjobsS.testGUI(true)
+end, false)
+
+RegisterCommand("giveloan", function(source, args, rawCommand)
+    vRPjobsS._createLoan(source, "Personals", 10000, 0.08, 10)
+end, false)
+
 --[[
     !
     ! NUI and UI
     !
 ]]
 
-::nonvRP::
-
-if not vRP then
-    local guiEnabled = false
-
-    Citizen.CreateThread(
-        function()
-            while true do
-                Citizen.Wait(0)
-
-                if guiEnabled then
-                    DisableControlAction(0, 1, guiEnabled) -- LookLeftRight
-                    DisableControlAction(0, 2, guiEnabled) -- LookUpDown
-                    DisableControlAction(0, 24, guiEnabled) -- Attack
-                    DisableControlAction(0, 15, guiEnabled) -- ScrollUp
-                    DisableControlAction(0, 14, guiEnabled) -- ScrollDown
-                    DisableControlAction(0, 16, guiEnabled) -- ScrollUp
-                    DisableControlAction(0, 17, guiEnabled) -- ScrollDown
-                    DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
-                    DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
-                else
-                    EnableControlAction(0, 1, true) -- LookLeftRight
-                    EnableControlAction(0, 2, true) -- LookUpDown
-                    EnableControlAction(0, 24, true) -- Attack
-                    EnableControlAction(0, 15, true) -- ScrollUp
-                    EnableControlAction(0, 14, true) -- ScrollDown
-                    EnableControlAction(0, 16, true) -- ScrollUp
-                    EnableControlAction(0, 17, true) -- ScrollDown
-                    EnableControlAction(0, 142, true) -- MeleeAttackAlternate
-                    EnableControlAction(0, 106, true) -- VehicleMouseControlOverride
-                end
-
-                if IsDisabledControlJustReleased(0, 142) then -- MeleeAttackAlternate
-                    SendNUIMessage(
-                        {
-                            type = "click"
-                        }
-                    )
-                end
+local guiEnabled = false
+Citizen.CreateThread(
+    function()
+        while true do
+            Citizen.Wait(0)
+            if guiEnabled then
+                DisableControlAction(0, 1, guiEnabled) -- LookLeftRight
+                DisableControlAction(0, 2, guiEnabled) -- LookUpDown
+                DisableControlAction(0, 24, guiEnabled) -- Attack
+                DisableControlAction(0, 15, guiEnabled) -- ScrollUp
+                DisableControlAction(0, 14, guiEnabled) -- ScrollDown
+                DisableControlAction(0, 16, guiEnabled) -- ScrollUp
+                DisableControlAction(0, 17, guiEnabled) -- ScrollDown
+                DisableControlAction(0, 142, guiEnabled) -- MeleeAttackAlternate
+                DisableControlAction(0, 106, guiEnabled) -- VehicleMouseControlOverride
+            else
+                EnableControlAction(0, 1, true) -- LookLeftRight
+                EnableControlAction(0, 2, true) -- LookUpDown
+                EnableControlAction(0, 24, true) -- Attack
+                EnableControlAction(0, 15, true) -- ScrollUp
+                EnableControlAction(0, 14, true) -- ScrollDown
+                EnableControlAction(0, 16, true) -- ScrollUp
+                EnableControlAction(0, 17, true) -- ScrollDown
+                EnableControlAction(0, 142, true) -- MeleeAttackAlternate
+                EnableControlAction(0, 106, true) -- VehicleMouseControlOverride
+            end
+            if IsDisabledControlJustReleased(0, 142) then -- MeleeAttackAlternate
+                SendNUIMessage(
+                    {
+                        type = "click"
+                    }
+                )
             end
         end
-    )
-
-    local function enableGui(enable, name, loans, cash, bank)
-        guiEnabled = enable
-        SetNuiFocus(guiEnabled)
-        SendNUIMessage(
-            {
-                type = "display",
-                enable = guiEnabled,
-                name = name,
-                loans = loans,
-                cash = cash,
-                bank = bank
-            }
-        )
     end
+)
 
-    RegisterNUICallback(
-        "escape",
-        function(data)
-            enableGui(false, "*")
-        end
+function enableBankGui(enable, name, loans, cash, bank)
+    guiEnabled = enable
+    SetNuiFocus(guiEnabled)
+    SendNUIMessage(
+        {
+            type = "display",
+            enable = guiEnabled,
+            name = name,
+            loans = loans,
+            cash = cash,
+            bank = bank
+        }
     )
-
-    RegisterNUICallback(
-        "clicked",
-        function(data)
-            print(data)
-        end
-    )
-
-    RegisterNUICallback(
-        "onPressed",
-        function(data)
-            print(data.loanid, data.elementid, data.value)
-        end
-    )
-
-    RegisterNetEvent("jobs:enableWindow")
-    AddEventHandler("jobs:enableWindow", function(enabled, name, loans, cash, bank)
-        enableGui(enabled, name, loans, cash, bank)
-    end)
-
-    RegisterCommand("openLoans", function(source, args, rawCommand)
-        vRPjobsS.enableGui(true)
-    end, false)
-
-    RegisterCommand("giveloan", function(source, args, rawCommand)
-        vRPjobsS.createLoan(source, "Personals", 10000, 0.08, 10)
-    end, false)
 end
+RegisterNUICallback(
+    "escape",
+    function(data)
+        enableBankGui(false)
+    end
+)
+RegisterNUICallback(
+    "clicked",
+    function(data)
+        print(data)
+    end
+)
+RegisterNUICallback(
+    "onPressed",
+    function(data)
+        print(data.loanid, data.elementid, data.value)
+    end
+)
+RegisterNetEvent("jobs:enableWindow")
+AddEventHandler("jobs:enableWindow", function(enabled, name, loans, cash, bank)
+    print("testing2")
+    enableBankGui(enabled, name, loans, cash, bank)
+end)

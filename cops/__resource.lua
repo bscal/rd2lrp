@@ -1,3 +1,5 @@
+resource_manifest_version '77731fab-63ca-442c-a67b-abc70f28dfa5'
+
 dependency "vrp"
 dependency "utils"
 
@@ -8,14 +10,8 @@ server_script {
 
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua",
-    "c-cops-abilities.lua"
+    "init.lua"
 }
-
-export "isEmergencyJob"
-export "isAdmin"
-export "getPermLevel"
-export "isHandcuffed"
 
 files {
     "lib/Luaoop.lua",

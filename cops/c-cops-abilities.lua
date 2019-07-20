@@ -1,22 +1,3 @@
-if not vRP then
-    -- * export functions
-    exports('isEmergencyJob', function()
-        return isCop or isEMS
-    end)
-
-    exports('isAdmin', function()
-        return isAdmin
-    end)
-
-    exports('getPermLevel', function()
-        return permLevel
-    end)
-
-    exports('isHandcuffed', function()
-        return handcuffed
-    end)
-    return
-end
 
 vRPclient = Tunnel.getInterface("vRP", "cops")
 vRPCopsS = Tunnel.getInterface("cops", "cops")
@@ -26,7 +7,7 @@ Tunnel.bindInterface("cops", vRPCops)
 Proxy.addInterface("cops", vRPCops)
 
 -- Admin and admin permission level
-isAdmin = false
+isAnAdmin = false
 permLevel = 0
 
 -- Cop, Ems, etc permissions
@@ -35,6 +16,36 @@ isEMS = false
 
 -- Player statuses
 handcuffed = false
+
+exports('isEmergencyJob', function()
+    return isCop or isEMS
+end)
+exports('isAdmin', function()
+    return isAnAdmin
+end)
+exports('getPermLevel', function()
+    return permLevel
+end)
+exports('isHandcuffed', function()
+    return handcuffed
+end)
+
+-- Citizen.CreateThread(function()
+--     while true do
+--         print("test")
+--         Citizen.Wait(1000)
+--         print("test2")
+
+--         print("EXPORTS", exportedVariables.isCop)
+--         exportedVariables.isCop = isCop
+--         exportedVariables.isEMS = isEMS 
+--         exportedVariables.isAnAdmin = isAnAdmin
+--         exportedVariables.permLevel = permLevel
+--         exportedVariables.handcuffed = handcuffed
+--         print("test over")
+--     end
+-- end)
+
 local cuffedByCop = false
 local dragged = false
 local playerStillDragged = false
@@ -188,7 +199,7 @@ Citizen.CreateThread(function()
             else
                 vRPCopsS._isCopToClient()
             end
-            if not isAdmin then
+            if not isAnAdmin then
                 vRPCopsS._isAdminToClient()
             end
             
@@ -199,7 +210,7 @@ end)
 RegisterNetEvent('cop:clientIsAdmin')
 AddEventHandler('cop:clientIsAdmin', function(admin, perm)
     if admin then
-        isAdmin = admin
+        isAnAdmin = admin
         permLevel = perm
         TriggerEvent('chat:addMessage', {
             color = {255, 255, 255},
