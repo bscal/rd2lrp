@@ -23,14 +23,17 @@ function Utils.tunnel:initPlayer()
     vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
 
     vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
+    
+    self.loaded = true
+end
+
+function Utils.tunnel:saveStressClient()
+    print('saving')
+    if not self.loaded then return end
+    vRPUtilS._saveStressServer(playerStress)
 end
 
 vRP:registerExtension(Utils)
-
-function vRPUtil.saveStress()
-    print(playerStress)
-    vRPUtilS._saveStress(playerStress)
-end
 
 Citizen.CreateThread(
     function()

@@ -7,6 +7,5 @@ async(
         vRP.loadScript("cops", "c-cops-ems")
         vRP.loadScript("cops", "c-cops-dispatch")
         vRP.loadScript("cops", "client")
-        vRP.loadScript("cops", "export")
     end
 )

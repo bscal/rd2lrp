@@ -2,15 +2,12 @@ dependency "vrp"
 
 server_script {
     "@vrp/lib/utils.lua",
-    "server.lua",
-    --"server-utils.lua"
+    "server.lua"
 }
 
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua",
-    --"client.lua"
-    -- "client-phone.lua"
+    "init.lua"
 }
 
 -- ui_page("public/index.html")
@@ -26,12 +23,6 @@ files {
     -- "public/cursor.png",
     -- "public/background.png",
     -- "public/phone-frame.png",
-    "lib/Luaoop.lua",
-    "lib/Tunnel.lua",
-    "lib/Proxy.lua",
-    "lib/IDManager.lua",
-    "lib/ActionDelay.lua",
-    "lib/Luang.lua",
     "client.lua",
     "client-twitter.lua",
     "client-mechanic.lua",

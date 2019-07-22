@@ -14,12 +14,6 @@ client_script {
 }
 
 files {
-    "lib/Luaoop.lua",
-    "lib/Tunnel.lua",
-    "lib/Proxy.lua",
-    "lib/IDManager.lua",
-    "lib/ActionDelay.lua",
-    "lib/Luang.lua",
     "init.lua",
     "client.lua",
     "c-cops-abilities.lua",

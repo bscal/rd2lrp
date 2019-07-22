@@ -16,18 +16,16 @@ end
 
 function Utils.event:save()
     for k, _ in pairs(vRP.users) do
-        vRPUtilsC._saveStress(k)
-        print(k)
+        self.remote._saveStressClient(k)
     end
 end
 
 vRP:registerExtension(Utils)
 
-function vRPUtil.saveStress(stress)
+function vRPUtils.saveStressServer(stress)
     local user = vRP.users_by_source[source]
-    if not stress then
-        return
-    end
+    if not stress then return end
+    print(user.cid, stress)
     local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
     exports["GHMattiMySQL"]:Query(querystring, {cid = user.cid, stress = stress})
 end

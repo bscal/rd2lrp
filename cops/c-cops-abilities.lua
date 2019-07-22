@@ -16,36 +16,6 @@ isEMS = false
 
 -- Player statuses
 handcuffed = false
-
-exports('isEmergencyJob', function()
-    return isCop or isEMS
-end)
-exports('isAdmin', function()
-    return isAnAdmin
-end)
-exports('getPermLevel', function()
-    return permLevel
-end)
-exports('isHandcuffed', function()
-    return handcuffed
-end)
-
--- Citizen.CreateThread(function()
---     while true do
---         print("test")
---         Citizen.Wait(1000)
---         print("test2")
-
---         print("EXPORTS", exportedVariables.isCop)
---         exportedVariables.isCop = isCop
---         exportedVariables.isEMS = isEMS 
---         exportedVariables.isAnAdmin = isAnAdmin
---         exportedVariables.permLevel = permLevel
---         exportedVariables.handcuffed = handcuffed
---         print("test over")
---     end
--- end)
-
 local cuffedByCop = false
 local dragged = false
 local playerStillDragged = false
@@ -186,7 +156,7 @@ AddEventHandler('playerSpawned', function()
 end)
 
 AddEventHandler('cop:revivePlayer', function()
-    exports["utils"]:setStress(40)
+    exports["vrp"]:setStress(40)
     reviveWait = 120
 end)
 
@@ -1159,3 +1129,16 @@ function Draw3DText(x, y, z, text)
         DrawText(_x,_y)
     end
 end
+
+exports('isEmergencyJob', function()
+    return isCop or isEMS
+end)
+exports('isAdmin', function()
+    return isAnAdmin
+end)
+exports('getPermLevel', function()
+    return permLevel
+end)
+exports('isHandcuffed', function()
+    return handcuffed
+end)

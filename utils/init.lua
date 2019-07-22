@@ -1,6 +1,6 @@
 local Proxy = module("lib/Proxy")
-local Tunnel = module("lib/Tunnel")
 local vRP = Proxy.getInterface("vRP")
+
 async(
     function()
         vRP.loadScript("utils", "client")
