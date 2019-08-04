@@ -142,9 +142,7 @@ function vRPjobs.paycheck(job)
             "~g~+200$ ~w~of unemployment has been deposited into your bank account. Total: ~g~" ..
             user:getBank() .. "$~w~."
     end
-    print(user:getBank())
     user:giveBank(pay)
-    print(user:getBank())
     vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "Bank statement", msg)
 end
 
@@ -262,24 +260,6 @@ end
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(1)
-
-        end
-    end
-)
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(60000)
-            
-        end
-    end
-)
-
-Citizen.CreateThread(
-    function()
-        while true do
             Citizen.Wait(60000 * 15)
             -- * Gets all over due loan payments that are one week old
             local querystring = "SELECT *, (nextDue > end) as isExpired FROM loans WHERE CURRENT_TIMESTAMP > nextDue"
@@ -333,11 +313,17 @@ function vRPjobs.bankDeconstruct()
     exports["GHMattiMySQL"]:Query("DELETE FROM bankers WHERE cid=@cid", {cid = user.cid})
 end
 
-local MIN_INTEREST_PERSONAL      = 0.075
-local MIN_INTEREST_SECURE           = 0.055
+-- Create loan
 function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
+    local MIN_INTEREST_PERSONAL      = 0.075
+    local MIN_INTEREST_SECURE           = 0.055
     local client = vRP.users_by_source[source]
-    local banker = vRP.users_by_source[bankerid]
+    local cid
+    if vRP.users_by_source[bankerid] then
+        cid = vRP.users_by_source[bankerid].cid
+    else
+        cid = -1
+    end
 
     if type == "Personal" and interest < MIN_INTEREST_PERSONAL then
         return
@@ -347,10 +333,10 @@ function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
 
     if bankerid ~= -1 then
         local querystring = "SELECT totalLoanedOut FROM bankers WHERE cid=@cid"
-        local bankerQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = banker.cid})
+        local bankerQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = cid})
 
         querystring = "SELECT level FROM user_jobs WHERE cid=@cid"
-        local jobsQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = banker.cid})
+        local jobsQuery = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = cid})
 
         local maxLoanMoney = loans.maxPersonalLoanMoney(jobsQuery[0].level)
         if bankerQuery + amount > maxLoanMoney then
@@ -359,16 +345,18 @@ function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
     end
 
     -- Success
-    local querystring = "INSERT INTO loans (banker, client, type, amount, interest, weeks, end, nextDue) VALUES (@banker, @client, @type, @amount, @interest, @weeks, TIMESTAMPADD(WEEK, @weeks, CURRENT_TIMESTAMP), TIMESTAMPADD(WEEK, 1, CURRENT_TIMESTAMP)"
-    exports["GHMattiMySQL"]:Query(querystring, {banker = banker.cid, client = client.cid, type = type, amount = amount, interest = interest, weeks = weeks})
+    local currentDebt = amount/weeks + amount/weeks*interest
+    local querystring = "INSERT INTO fivem.loans (banker, client, type, amount, amountOwed, interest, currentDebt, weeks, end, nextDue) VALUES (@banker, @client, @type, @amount, @amount, @interest, @currentDebt, @weeks, TIMESTAMPADD(WEEK, @weeks, CURRENT_TIMESTAMP), TIMESTAMPADD(WEEK, 1, CURRENT_TIMESTAMP))"
+    exports["GHMattiMySQL"]:Query(querystring, {banker = cid, client = client.cid, type = type, amount = amount, interest = interest, currentDebt = currentDebt, weeks = weeks})
 end
 
 function vRPjobs.testGUI(enabled)
-    print("is this working?")
     local user = vRP.users_by_source[source]
-    local querystring = "SELECT * FROM loans WHERE client=@cid"
+    local querystring = "SELECT id, banker, client, type, amount, interest, currentDebt, missedPayments, totalDebt, currentWeek, weeks, "
+    .. "DATE_FORMAT(start,'%e/%c/%Y %H:%i:%s') as start, DATE_FORMAT(end, '%e/%c/%Y %H:%i:%s') as end, DATE_FORMAT(nextDue,'%e/%c/%Y %H:%i:%s') as nextDue "
+    .. "FROM loans WHERE client=@cid"
     local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
-    TriggerClientEvent("jobs:enableWindow", user.source, enabled, user.identity.name..", "..user.identity.firstname, query[1], user:getWallet(), user:getBank())
+    TriggerClientEvent("jobs:enableWindow", user.source, enabled, user.identity.name..", "..user.identity.firstname, query, user:getWallet(), user:getBank())
 end
 
 -- * Taxis
@@ -384,4 +372,78 @@ function vRPjobs.taxiDeconstruct()
     user:removeGroup("taxi")
 end
 
-print("TESTING __________________________")
+RegisterNetEvent("jobs:paybackWeekly")
+AddEventHandler("jobs:paybackWeekly", function(loanID, loan)
+    local user = vRP.users_by_source[source]
+    local msg
+
+    if user:tryFullPayment(loan.currentPayment, true) then
+        -- Has enough cash or bank
+        user:tryFullPayment(loan.currentPayment, false)
+
+        -- Updates user's creditscore
+        exports["GHMattiMySQL"]:Query("UPDATE char_data SET (creditscore=creditscore+25) WHERE cid=@cid", {cid = user.cid})
+        if loan.currentWeek == loan.weeks then
+            -- Was loans last payment. Deletes loan and updates banker to have his loan money back
+            exports["GHMattiMySQL"]:Query("DELETE loans WHERE id=@id", {id = loanID})
+            exports["GHMattiMySQL"]:Query("UPDATE bankers SET (totalLoanedOut=totalLoanedOut-@amount) WHERE cid=@banker", {banker = loan.banker, amount = loan.amount})
+        else
+            -- Pays weeks payment and increments currentWeek
+            exports["GHMattiMySQL"]:Query("UPDATE loans SET (currentPayment=0, currentWeek=currentWeek+1) WHERE id=@id", {id = loanID})
+        end
+        -- Gives the bankers his pay 10% of the current loan payment. This will be given next time bankers is on
+        exports["GHMattiMySQL"]:Query("UPDATE bankers SET (pay=pay+@amount) WHERE cid=@banker", {banker = loan.banker, amount = loan.currentPayment*0.1})
+        msg = "You were charged ~g~" .. loan.currentPayment .. "$~w~ for your weekly loan payment."
+        vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~g~Loan Payment Accepted", msg)
+        return
+    end
+    msg = "Could not afford weekly payment. Current amount due ~r~" .. loan.currentPayment .. "$~w~."
+    vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan Payment Denied", msg)
+end)
+
+RegisterNetEvent("jobs:paybackTotal")
+AddEventHandler("jobs:paybackTotal", function(loanID, loan, value)
+    local user = vRP.users_by_source[source]
+    local msg
+
+    if user:tryFullPayment(value, true) then
+        -- Has enough cash or bank
+        user:tryFullPayment(value, false)
+
+        if loan.totalDebt > 0 then
+            
+            -- Payback currently owed debt
+            if loan.totalDebt - value < 0 then
+                -- Has money left after paying debt
+                local splitValue = loan.currentDebt - value
+                local overflow = loan.amountOwed-splitValue
+                if overflow < 1 then
+                    -- Fully Paid Back
+                    user:giveBank(overflow * 1)
+                    exports["GHMattiMySQL"]:Query("DELETE loans WHERE id=@id", {id = loanID})
+                    exports["GHMattiMySQL"]:Query("UPDATE bankers SET (totalLoanedOut=totalLoanedOut-@amount) WHERE cid=@banker", {banker = loan.banker, amount = loan.amount})
+                    
+                    msg = "You have fully paided back your loan. You were paid back ~g~"..overflow.."$~w~."
+                    vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~g~Loan Payment Accepted", msg)
+                    return
+                else
+                    -- Loan is not fully paid back
+                    msg = "You have no remaining debt payments. You paid "..
+                    exports["GHMattiMySQL"]:Query("UPDATE loans SET (totalDebt=0, amountOwed=amountOwed-@amount) WHERE id=@id", {id = loanID, amount=splitValue})
+                end
+            else
+                -- Does not have money left after paying debt
+                msg = "You have paid off ~g~"..value.."~w~ of your current debt. Remaining debt ~g~"..loan.currentDebt-value.."$"
+                exports["GHMattiMySQL"]:Query("UPDATE loans SET (totalDebt=totalDebt-@amount) WHERE id=@id", {id = loanID, amount=value})
+            end
+        else
+            -- Has no debt to pay only owed amount
+            exports["GHMattiMySQL"]:Query("UPDATE loans SET (amountOwed=amountOwed-@amount) WHERE id=@id", {id = loanID, amount=value})
+        end
+        msg = "You have paid off ~g~"..value.."~w~ of your current owed amount. Remaining debt ~g~"..loan.currentDebt-value.."$"
+        vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~g~Loan Payment Accepted", msg)
+    else
+        msg = "You have fully paided back your loan. You were paid back ~g~"..overflow.."$~w~."
+        vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan Payment Denied", msg)
+    end
+end)

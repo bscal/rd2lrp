@@ -118,9 +118,9 @@ AddEventHandler('isCop', function()
     end
     isCop = true
     TriggerEvent('chat:addMessage', {
-        color = {255, 255, 255},
+        color = {0, 0, 255},
         multiline = true,
-        args = {"Police", "You are a cop"}
+        args = {"[Police]", "You are a cop"}
     })
 end)
 
@@ -131,9 +131,9 @@ AddEventHandler('isEMS', function()
     end
     isEMS = true
     TriggerEvent('chat:addMessage', {
-        color = {255, 255, 255},
+         color = {255, 0, 0},
         multiline = true,
-        args = {"EMS", " You are an EMS"}
+        args = {"[EMS]", " You are an EMS"}
     })
 end)
 
@@ -183,9 +183,9 @@ AddEventHandler('cop:clientIsAdmin', function(admin, perm)
         isAnAdmin = admin
         permLevel = perm
         TriggerEvent('chat:addMessage', {
-            color = {255, 255, 255},
-            multiline = false,
-            args = {"You are Admin. Permission level ", perm}
+            color = {255, 0, 0},
+            multiline = true,
+            args = {"[Admin]", "You are Admin. Permission level " .. perm, }
         })
     end
 end)

@@ -1,5 +1,6 @@
 #cursor { 
     position: absolute;
+    z-index: 999;
 }
 
 #payTotalAmount {
@@ -86,7 +87,8 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
 }
 
 p {

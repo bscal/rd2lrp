@@ -1,6 +1,6 @@
 Vue.component('loan', {
     props: ["seen", "loan"],
-    template: '<div v-if="seen" class="list-line-div"><li class="list-div">ID: {{loan.id}}, Loaned Amount: {{loan.amount}}$, Weekly Rate: {{loan.interest}}%, # of Missed Payments: {{loan.missedPayments}}, Total Interst Owed: {{loan.totalInterest}}$, Current Payment Owed: {{loan.currentInterest}}$, Next Payment Due Date: {{loan.nextDue}} Start Date: {{loan.start}}, End Date: {{loan.end}},</li>'
+    template: '<div v-if="seen" class="list-line-div"><li class="list-div">ID: {{loan.id}}, Loaned Amount: {{loan.amount}}$, Weekly Rate: {{loan.interest}}%, # of Missed Payments: {{loan.missedPayments}}, Total owed on loan: {{loan.amountOwed}}$, Total debt owed: {{loan.totalDebt}}$, Next Payment Due Date: {{loan.nextDue}} Start Date: {{loan.start}}, End Date: {{loan.end}},</li>'
     + '<button id="payCurrentAmount" v-on:click="onClick" type="button" class="btn button-div" data-toggle="tooltip" data-placement="bottom" title="Attempts to pay off your loans weekly payment. Will use bank if not enough cash.">Pay Weekly Payment</button>'
     //+ '<input id="payCurrentAmount" type="text" class="form-control list-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">'
     + '<button id="payTotalAmount" v-on:click="onClick" type="button" class="btn button-div" data-toggle="tooltip" data-placement="bottom" title="Will payoff current debt on the loan then will payback current owed amount.">Payback loan</button>'
@@ -8,19 +8,24 @@ Vue.component('loan', {
     methods: {
         onClick: function (event) {
             let target = event.target
-            let id = $(target).parent().html().split(',')[0].split(' ')[2]
-            let button = $(target).attr("id")
+            let loanID = $(target).parent().html().split(',')[0].split(' ')[2]
+            let htmlID = $(target).attr("id")
             let input = $(target).parent().find("#inputTotalAmount")
-            console.log(id, button, $(input).val())
-            jobsPressed(id, $(input).html(), $(input).val())
+            let value = $(input).val()
+
+            if (value == null || value < 0) {
+                value = 0
+            }
+            jobsPressed(loanID, htmlID, value)
         }
     }
 })
 
-function jobsPressed(loanid, elementid, value) {
+function jobsPressed(loanID, htmlID, value) {
     $.post('http://jobs/onPressed', JSON.stringify({
-        loanid: loanid,
-        elementid: elementid,
+        loanID: loanID,
+        loan: getLoanById(loanID),
+        htmlID: htmlID,
         value: value
     }));
 }
@@ -65,21 +70,21 @@ function Click(x, y) {
 }
 
 window.addEventListener("message", function(event) {
-    var data = event.data;
+    let data = event.data;
     console.log(`NUIMessage: ${event.data.type}`)
     if (data.type == "display") {
         if (data.enable) {
             $(document.body).show();
-            vm.seen = true
-            vm.loans = data.loans
-            vm.name = data.name
-            vm.cash = data.cash
-            vm.bank = data.bank
+            app.seen = true
+            app.loans = data.loans
+            app.name = data.name
+            app.cash = data.cash
+            app.bank = data.bank
             toggleVisible("#container", true)
         }
         else {
             $(document.body).hide();
-            vm.seen = false
+            app.seen = false
             toggleVisible("#container", false)
         }
     }
@@ -118,6 +123,14 @@ function sendToServer(form) {
     $.post('http://jobs/submit', JSON.stringify({
         id: form.getElementById("id").value
     }));
+}
+
+function getLoanById(id) {
+    for(loan in app.loans) {
+        if (loan.id === id) 
+            return loan;
+    }
+    return null;
 }
 
 $(function () {

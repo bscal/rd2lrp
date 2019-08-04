@@ -270,7 +270,7 @@ function vRPCops.isAdminToClient()
         TriggerClientEvent("cop:clientIsAdmin", user.source, false, 0)
         return
     end
-    TriggerClientEvent("cop:clientIsAdmin", user.source, true, results.perm)
+    TriggerClientEvent("cop:clientIsAdmin", user.source, true, results[1].perm)
 end
 
 function getCopData(userid, cid)
