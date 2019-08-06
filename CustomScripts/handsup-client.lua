@@ -31,11 +31,13 @@ Citizen.CreateThread(function()
 						if not handsup then
 							handsup = true
 							TaskPlayAnim(lPed, "random@mugging3", "handsup_standing_base", 8.0, -8, -1, 49, 0, 0, 0, 0)
+							RemoveAnimDict("random@mugging3")
 						end   
 					end)
 				end
 			end
 		end
+
 		if IsControlReleased(1, 323) then
 			if DoesEntityExist(lPed) then
 				Citizen.CreateThread(function()

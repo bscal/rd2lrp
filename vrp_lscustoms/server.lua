@@ -95,7 +95,7 @@ AddEventHandler('lscustoms:payGarage', function(button)
 	local player = vRP.users_by_source[source]
   local user_id = player.id
   if button.costs ~= nil then
-	if player:tryFullPayment(tonumber(button.costs)) then 
+	if player:tryPayment(tonumber(button.costs)) then 
 	  TriggerClientEvent("lscustoms:buttonSelected", player, button)
 	else
 	  TriggerClientEvent("lscustoms:payGarageFalse", player)

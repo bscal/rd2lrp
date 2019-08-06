@@ -8,7 +8,7 @@ dependency 'GHMattiMySQL'
 client_scripts{ 
   "@vrp/lib/utils.lua",
   "init.lua",
-  "client.lua"
+  --"client.lua"
 }
 
 server_scripts{ 
@@ -17,7 +17,5 @@ server_scripts{
 }
 
 files {
-  "lib/Tunnel.lua",
-  "lib/Proxy.lua",
-  "init.lua"
+  "client.lua"
 }

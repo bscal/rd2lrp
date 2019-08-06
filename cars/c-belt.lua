@@ -1,5 +1,4 @@
 
-
 local hasSeatBeltOn = false
 local speedBuffer  = {}
 local velBuffer    = {}
@@ -33,7 +32,7 @@ Citizen.CreateThread(function()
             velBuffer[2] = velBuffer[1]
             velBuffer[1] = GetEntityVelocity(veh)
 
-            if IsControlJustPressed(1, 29) then
+            if IsControlJustPressed(1, 311) then -- K
                 hasSeatBeltOn = not hasSeatBeltOn
             end
 

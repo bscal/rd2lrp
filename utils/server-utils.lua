@@ -1,42 +1,50 @@
+vRPclient = Tunnel.getInterface("vRP", "utils")
+vRPUtilsC = Tunnel.getInterface("utils", "utils")
+
 vRPUtils = {}
 Tunnel.bindInterface("utils", vRPUtils)
 Proxy.addInterface("utils", vRPUtils)
-vRPclient = Tunnel.getInterface("vRP","utilsC")
-vRPUtilsC = Tunnel.getInterface("utilsC","utilsC")
 
-local recentAds = {}
-local adPrice = 100
+local Utils = class("Utils", vRP.Extension)
+Utils.event = {}
 
-function vRPUtils.hasAdMoney()
-    local user = vRP.users_by_source[source]
-    if (user:tryPayment(adPrice, false)) then
-        return true;
+function Utils.event:playerSpawn(user, first_spawn)
+    if first_spawn then
+        self.remote._initPlayer(user.source)
     end
-    return false
+end
+
+function Utils.event:save()
+    for k, _ in pairs(vRP.users) do
+        self.remote._saveStressClient(k)
+    end
+end
+
+vRP:registerExtension(Utils)
+
+function vRPUtils.saveStressServer(stress)
+    local user = vRP.users_by_source[source]
+    if not stress then return end
+    print(user.cid, stress)
+    local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
+    exports["GHMattiMySQL"]:Query(querystring, {cid = user.cid, stress = stress})
+end
+
+function vRPUtils.getStress()
+    local user = vRP.users_by_source[source]
+    local querystring = "SELECT stress FROM char_data WHERE cid=@cid"
+    local query = exports["GHMattiMySQL"]:QueryResult(querystring, {cid = user.cid})
+    if #query < 1 then
+        return 0.0
+    end
+    print(query[1].stress)
+    return query[1].stress
 end
 
 function vRPUtils.sendTweet(msg)
     local user = vRP.users_by_source[source]
-    local name = "@"..user.identity.firstname..user.identity.name.." "
+    local name = "@" .. user.identity.firstname .. user.identity.name .. " "
     vRPUtilsC.printTweet(-1, name, msg)
-end
-
-function vRPUtils.sendAd(msg)
-    local user = vRP.users_by_source[source]
-    local name = user.identity.firstname.." "..user.identity.name..": "
-    local formattedMsg = 
-    table.insert(recentAds, 1, name..msg)
-    if (#recentAds > 5) then
-        table.remove(ads, 5)
-    end
-    vRPUtilsC.printAd(-1, name..msg)
-end
-
-function vRPUtils.sendRecentAds(msg)
-    local user = vRP.users_by_source[source]
-    for k, v in pairs(recentAds) do
-        vRPUtilsC.printAd(user.source, v)
-    end
 end
 
 function vRPUtils.hasItem(item, amount, ritem, ramount)
@@ -53,8 +61,8 @@ function vRPUtils.craftItem(item, ritem)
 
     for k, v in pairs(item) do
         if not user:tryTakeItem(v.item, v.amount, true, false) then
-            vRP.EXT.Base.remote._notify(user.source, "You are missing "..v.amount.." "..v.item)
-            return false;
+            vRP.EXT.Base.remote._notify(user.source, "You are missing " .. v.amount .. " " .. v.item)
+            return false
         end
     end
 
@@ -66,4 +74,23 @@ function vRPUtils.craftItem(item, ritem)
         user:tryGiveItem(v.item, v.amount, false, false)
     end
     return true
+end
+
+function vRPUtils.test()
+    local user = vRP.users_by_source[source]
+
+    for k, v in pairs(user.phone_sms) do
+        print(v)
+    end
+
+    for phone, name in pairs(user.cdata.phone_directory) do
+        print(phone)
+        print(name)
+    end
+    print(user.phone_call)
+end
+
+function vRPUtils.getContacts()
+    local user = vRP.users_by_source[source]
+    vRPUtilsC.setContacts(user.source, user.cdata.phone_directory)
 end

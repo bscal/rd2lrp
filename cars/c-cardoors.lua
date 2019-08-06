@@ -3,18 +3,12 @@ local keys = {}
 
 local ped = nil
 
-local function IsAiVeh(veh)
+local function hasKey(veh)
     for k, v in pairs(keys) do
         if k == veh then
-            return false
+            return v
         end
     end
-    if IsVehicleAlarmActivated(veh) then
-        return true
-    end
-    -- if IsVehicleStolen(veh) then
-    --     return true
-    -- end
     return false
 end
 
@@ -27,9 +21,13 @@ Citizen.CreateThread(function()
         if DoesEntityExist(GetVehiclePedIsTryingToEnter(PlayerPedId())) then
 			-- gets vehicle player is trying to enter and its lock status
             local veh = GetVehiclePedIsTryingToEnter(PlayerPedId())
-            local lock = GetVehicleDoorLockStatus(veh)
+            
+            if not vRP.EXT.Garage:getAllVehicles()[veh] then
+                return
+            end
 
-            if lock == 7 or IsAiVeh(veh) then
+            local lock = GetVehicleDoorLockStatus(veh)
+            if lock == 7 or not hasKey(veh) then
                 keys[veh] = false
                 --SetVehicleDoorsLocked(veh, 2)
             end

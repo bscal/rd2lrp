@@ -1,0 +1,125 @@
+#cursor { 
+    position: absolute;
+    z-index: 999;
+}
+
+#payTotalAmount {
+    margin-left: 3vw;
+}
+
+#monitor {
+    position: fixed;
+    z-index: 10;
+    height: 100vh;
+    width: 100vw;
+}
+
+#logo {
+    position: relative;
+    top: 3vh;
+    left: 3vw;
+    width: 12vw;
+    height: 12vh;
+}
+
+.loan-div {
+    position: absolute;
+    top: 4vh;
+    height: 95vh;
+    width: 100%;
+    background-color: rgb(211, 211, 211);
+}
+
+.list-div {
+    position: relative;
+    display: inline;
+    padding: 4px;
+}
+
+.button-div {
+    margin-left: 1vw;
+    position: relative;
+    max-width: 76vw;
+    display: inline;
+}
+
+.list-input {
+    max-width: 10vw;
+    margin-left: 1vw;
+    display: inline;
+}
+
+.list-line-div {
+    position: relative;
+    padding: 4px;
+    margin: 4px;
+    border-radius: 8px;
+    background-color: rgb(251, 102, 102);
+}
+
+.bar-div {
+    position: absolute;
+    z-index: 5;
+    height: 2vh;
+    width: 100%;
+    top: 4vh;
+    background-color: rgb(209, 12, 12);
+}
+
+.footer-div {
+    position: sticky;
+    top: 96vh;
+    width: 100%;
+    height: 4vh;
+}
+
+.money-div {
+    top: 10vh;
+    text-align: right;
+    overflow: hidden;
+}
+
+.bottom {
+    position: absolute;
+    top: 92vh;
+    font-size: 0.75vw;
+    left: 56vw;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+
+p {
+    position: absolute;
+    top: 7vh;
+    left: 67vw;
+    font-size: 1vw;
+}
+
+h2 {
+    position: absolute;
+    text-decoration: underline;
+    top: 6vh;
+    left: 16vw;
+    text-shadow: 2px, 2px;
+}
+
+ul {
+    position: absolute;
+    top: 21vh;
+    list-style-type: none;
+    height: 100vh;
+    max-height: 60vh;
+    width: 80vw;
+    z-index: 11;
+    overflow:hidden;
+    overflow-y:scroll;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

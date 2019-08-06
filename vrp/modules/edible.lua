@@ -1,4 +1,6 @@
-if not vRP.modules.edible then return end
+if not vRP.modules.edible then
+  return
+end
 
 local lang = vRP.lang
 local ActionDelay = module("vrp", "lib/ActionDelay")
@@ -21,7 +23,7 @@ local function define_items(self)
     if edible then
       return edible.name
     else
-      return "[edible|"..args[2].."]"
+      return "[edible|" .. args[2] .. "]"
     end
   end
 
@@ -43,9 +45,9 @@ local function define_items(self)
     local etype = self.types[edible.type]
 
     -- consume
-    
-     if user.edible_action:perform(self.cfg.action_delay) then
-	  if user:tryTakeItem(fullid, 1, nil, true) then
+
+    if user.edible_action:perform(self.cfg.action_delay) then
+      if user:tryTakeItem(fullid, 1, nil, true) then
         -- menu update
         local namount = user:getItemAmount(fullid)
         if namount > 0 then
@@ -65,7 +67,7 @@ local function define_items(self)
             effect(user, value)
           end
         end
-	  end
+      end
     else
       vRP.EXT.Base.remote._notify(user.source, lang.common.must_wait({user.edible_action:remaining()}))
     end
@@ -95,73 +97,114 @@ end
 
 local function define_basics(self)
   -- food effect
-  self:defineEffect("food", function(user, value)
-    user:varyVital("food", value)
-  end)
+  self:defineEffect(
+    "food",
+    function(user, value)
+      user:varyVital("food", value)
+    end
+  )
 
   -- water effect
-  self:defineEffect("water", function(user, value)
-    user:varyVital("water", value)
-  end)
+  self:defineEffect(
+    "water",
+    function(user, value)
+      user:varyVital("water", value)
+    end
+  )
 
   -- health effect
-  self:defineEffect("health", function(user, value)
-    vRP.EXT.Survival.remote._varyHealth(user.source, value)
-  end)
-  
-    -- armour effect
-  self:defineEffect("armour", function(user, value)
-    TriggerClientEvent("applyArmour", user.source, value)
-  end)
-  
-      -- high effect
-  self:defineEffect("high", function(user, value)
-    TriggerClientEvent("applyHigh", user.source, value)
-  end)
-  
-      -- drunk effect
-  self:defineEffect("drunk", function(user, value)
-    TriggerClientEvent("applyDrunk", user.source, value)
-  end)
-  
-        -- speed effect
-  self:defineEffect("runspeed", function(user, value)
-    TriggerClientEvent("runSpeed", user.source, value)
-  end)
+  self:defineEffect(
+    "health",
+    function(user, value)
+      vRP.EXT.Survival.remote._varyHealth(user.source, value)
+    end
+  )
+
+  -- armour effect
+  self:defineEffect(
+    "armour",
+    function(user, value)
+      TriggerClientEvent("applyArmour", user.source, value)
+    end
+  )
+
+  -- high effect
+  self:defineEffect(
+    "high",
+    function(user, value)
+      TriggerClientEvent("applyHigh", user.source, value)
+    end
+  )
+
+  -- drunk effect
+  self:defineEffect(
+    "drunk",
+    function(user, value)
+      TriggerClientEvent("applyDrunk", user.source, value)
+    end
+  )
+
+  -- speed effect
+  self:defineEffect(
+    "runspeed",
+    function(user, value)
+      TriggerClientEvent("runSpeed", user.source, value)
+    end
+  )
+
+  -- stress
+  self:defineEffect(
+    "stress",
+    function(user, value)
+      TriggerClientEvent("applyStress", user.source, value)
+    end
+  )
 
   -- liquid type
   local liquid_seq = {
-    {"mp_player_intdrink","intro_bottle",1},
-    {"mp_player_intdrink","loop_bottle",1},
-    {"mp_player_intdrink","outro_bottle",1}
+    {"mp_player_intdrink", "intro_bottle", 1},
+    {"mp_player_intdrink", "loop_bottle", 1},
+    {"mp_player_intdrink", "outro_bottle", 1}
   }
 
-  self:defineType("liquid", lang.edible.liquid.action(), function(user, edible)
-    vRP.EXT.Base.remote._playAnim(user.source,true,liquid_seq,false)
-    vRP.EXT.Audio.remote._playAudioSource(-1, "sounds/drinking.ogg", 1, 0,0,0, 30, user.source)
-    vRP.EXT.Base.remote._notify(user.source, lang.edible.liquid.notify({edible.name}))
-  end)
+  self:defineType(
+    "liquid",
+    lang.edible.liquid.action(),
+    function(user, edible)
+      vRP.EXT.Base.remote._playAnim(user.source, true, liquid_seq, false)
+      vRP.EXT.Audio.remote._playAudioSource(-1, "sounds/drinking.ogg", 1, 0, 0, 0, 30, user.source)
+      vRP.EXT.Base.remote._notify(user.source, lang.edible.liquid.notify({edible.name}))
+    end
+  )
 
   -- solid type
   local solid_seq = {
-    {"mp_player_inteat@burger", "mp_player_int_eat_burger_enter",1},
-    {"mp_player_inteat@burger", "mp_player_int_eat_burger",1},
-    {"mp_player_inteat@burger", "mp_player_int_eat_burger_fp",1},
-    {"mp_player_inteat@burger", "mp_player_int_eat_exit_burger",1}
+    {"mp_player_inteat@burger", "mp_player_int_eat_burger_enter", 1},
+    {"mp_player_inteat@burger", "mp_player_int_eat_burger", 1},
+    {"mp_player_inteat@burger", "mp_player_int_eat_burger_fp", 1},
+    {"mp_player_inteat@burger", "mp_player_int_eat_exit_burger", 1}
   }
 
-  self:defineType("solid", lang.edible.solid.action(), function(user, edible)
-    vRP.EXT.Base.remote._playAnim(user.source,true,solid_seq,false)
-    vRP.EXT.Audio.remote._playAudioSource(-1, self.cfg.solid_sound, 1, 0,0,0, 30, user.source)
-    vRP.EXT.Base.remote._notify(user.source, lang.edible.solid.notify({edible.name}))
-  end)
+  self:defineType(
+    "solid",
+    lang.edible.solid.action(),
+    function(user, edible)
+      vRP.EXT.Base.remote._playAnim(user.source, true, solid_seq, false)
+      vRP.EXT.Audio.remote._playAudioSource(-1, self.cfg.solid_sound, 1, 0, 0, 0, 30, user.source)
+      vRP.EXT.Base.remote._notify(user.source, lang.edible.solid.notify({edible.name}))
+    end
+  )
 
   -- drug type
-  self:defineType("drug", lang.edible.drug.action(), function(user, edible)
-    vRP.EXT.Base.remote._playAnim(user.source,true,liquid_seq,false)
-    vRP.EXT.Audio.remote._playAudioSource(-1, self.cfg.liquid_sound, 1, 0,0,0, 30, user.source)
-    vRP.EXT.Base.remote._notify(user.source, lang.edible.drug.notify({edible.name}))
-  end)
+  self:defineType(
+    "drug",
+    lang.edible.drug.action(),
+    function(user, edible)
+      vRP.EXT.Base.remote._playAnim(user.source, true, liquid_seq, false)
+      vRP.EXT.Audio.remote._playAudioSource(-1, self.cfg.liquid_sound, 1, 0, 0, 0, 30, user.source)
+      vRP.EXT.Base.remote._notify(user.source, lang.edible.drug.notify({edible.name}))
+    end
+  )
 end
 
 -- METHODS
@@ -191,7 +234,7 @@ end
 -- on_consume(user, edible)
 function Edible:defineType(id, action_name, on_consume)
   if self.types[id] then
-    self:log("WARNING: re-defined type \""..id.."\"")
+    self:log('WARNING: re-defined type "' .. id .. '"')
   end
 
   self.types[id] = {action_name, on_consume}
@@ -201,7 +244,7 @@ end
 -- on_effect(user, value)
 function Edible:defineEffect(id, on_effect)
   if self.effects[id] then
-    self:log("WARNING: re-defined effect \""..id.."\"")
+    self:log('WARNING: re-defined effect "' .. id .. '"')
   end
 
   self.effects[id] = on_effect
@@ -215,13 +258,13 @@ end
 -- weight
 function Edible:defineEdible(id, type, effects, name, description, weight)
   if self.edibles[id] then
-    self:log("WARNING: re-defined edible \""..id.."\"")
+    self:log('WARNING: re-defined edible "' .. id .. '"')
   end
 
   self.edibles[id] = {
-    type = type, 
-    effects = effects, 
-    name = name, 
+    type = type,
+    effects = effects,
+    name = name,
     description = description,
     weight = weight
   }

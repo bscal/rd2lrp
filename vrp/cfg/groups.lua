@@ -128,7 +128,7 @@ cfg.groups = {
     "vehicle.repair",
     "vehicle.replace",
     "repair.service",
-	"repair.vehicle"
+	  "repair.vehicle"
 --    "mission.repair.satellite_dishes", -- basic mission
 --    "mission.repair.wind_turbines" -- basic mission
   },

@@ -1,10 +1,6 @@
 client_script {
     "@vrp/lib/utils.lua",
-    "init.lua",
-   -- "c-speed.lua"
-    "c-cruise.lua",
-    "c-fuel.lua",
-    "c-belt.lua",
+    "init.lua"
 }
 
 server_script {
@@ -13,7 +9,6 @@ server_script {
 }
 
 files {
-    "lib/Luaoop.lua",
-    "lib/Tunnel.lua",
     "c-cardoors.lua",
+    "client.lua"
 }
