@@ -2,31 +2,42 @@ local cfg = module("jobs", "configs/business")
 
 local loans = module("jobs", "configs/loans")
 
-local LOWER = 600
-local MIDDLE = 1000
-local UPPER = 1500
+local LOWER = 400
+local MIDDLE = 800
+local UPPER = 1250
+local POLICE = 850
+
+--[[
+    btype = the type of job/business
+    types:
+        - job
+        - business
+        - gangjob
+
+    if 'needSet = true' is set then the job is a manually set job. This is for more important positions.
+]]
 
 -- * Business table
 local businessList = {
-    ["Emergency Worker"]        = {name = "Emergency Worker", btype = "job", salary = 800},
-    ["Banker"]                  = {name = "Banker", btype = "job", salary = 1200},
-    ["Realtor"]                 = {name = "Realtor", btype = "job", salary = 600},
-    ["Insurance Salesman"]      = {name = "Insurance Salesman", btype = "job", salary = 400},
-    ["Lawyer"]                  = {name = "Lawyer", btype = "job", salary = 600},
-    ["Judge"]                   = {name = "Judge", btype = "job", salary = 2000},
-    ["Judicial Assistant"]      = {name = "Judicial Assistant", btype = "job", salary = 800},
-    ["Taxi"]                    = {name = "Taxi", btype = "job", salary = 600},
-    ["Tow"]                     = {name = "Tow", btype = "job", salary = 600},
-    ["Chef"]                    = {name = "Chef", btype = "job", salary = 600},
-    ["Arms Dealer"]             = {name = "Arms Dealer", btype = "job", salary = 600},
-    ["IT"]                      = {name = "IT", btype = "job", salary = 600},
-    ["Pilot"]                   = {name = "Pilot", btype = "job", salary = 600},
-    ["Driving Teacher"]         = {name = "Driving Teacher", btype = "job", salary = 600},
-    ["Car Salesman"]            = {name = "Car Salesman", btype = "business", salary = 800, downpay = 30000, cost = 100000},
-    ["Car Repair"]              = {name = "Car Repair", btype = "business", salary = 800, downpay = 30000, cost = 100000},
-    ["Car Exotic"]              = {name = "Car Exotic", btype = "business", salary = 1000, downpay = 250000, cost = 500000},
-    ["Company"]                 = {name = "Company", btype = "business", salary = 600, downpay = 20000, cost = 40000},
-    ["Store"]                   = {name = "Store", btype = "business", salary = 600, downpay = 20000, cost = 40000}
+    ["Emergency Worker"]         = {name = "Emergency Worker", btype = "job", salary = POLICE, needSet=true},
+    ["Banker"]                             = {name = "Banker", btype = "job", salary = 1200},
+    ["Realtor"]                             = {name = "Realtor", btype = "job", salary = 600},
+    ["Insurance Salesman"]         = {name = "Insurance Salesman", btype = "job", salary = 400},
+    ["Lawyer"]                             = {name = "Lawyer", btype = "job", salary = MIDDLE, needSet=true},
+    ["Judge"]                              = {name = "Judge", btype = "job", salary = 2000, needSet=true},
+    ["Judicial Assistant"]            = {name = "Judicial Assistant", btype = "job", salary = UPPER, needSet=true},
+    ["Taxi"]                                  = {name = "Taxi", btype = "job", salary = 600},
+    ["Tow"]                                  = {name = "Tow", btype = "job", salary = 600},
+    ["Chef"]                                = {name = "Chef", btype = "job", salary = 600},
+    ["Arms Dealer"]                    = {name = "Arms Dealer", btype = "job", salary = 600},
+    ["IT"]                                    = {name = "IT", btype = "job", salary = 600},
+    ["Pilot"]                                = {name = "Pilot", btype = "job", salary = 600},
+    ["Driving Teacher"]              = {name = "Driving Teacher", btype = "job", salary = UPPER, needSet=true},
+    ["Car Salesman"]                 = {name = "Car Salesman", btype = "business", salary = 800, downpay = 30000, cost = 100000},
+    ["Car Repair"]                      = {name = "Car Repair", btype = "business", salary = 800, downpay = 30000, cost = 100000},
+    ["Car Exotic"]                      = {name = "Car Exotic", btype = "business", salary = 1000, downpay = 250000, cost = 500000},
+    ["Company"]                       = {name = "Company", btype = "business", salary = 600, downpay = 20000, cost = 40000},
+    ["Store"]                              = {name = "Store", btype = "business", salary = 600, downpay = 20000, cost = 40000}
 }
 
 -- * Table of levels based on initLevels and levelup equation function
@@ -93,13 +104,23 @@ local function initMenu(self)
             for k, v in pairs(businessList) do
                 if v.btype == "job" then
                     businessList[k].id = i
-                    menu:addOption(
-                        "<p style='color: red'>" .. k .. "</p>",
-                        m_jobs,
-                        "<p>TESTING 1 2 3 TEST TEST TESTINNNNGGG!</p>",
-                        v.name,
-                        v.id
-                    )
+                    if v.needSet then
+                        menu:addOption(
+                            "<p style='color: red'>" .. k .. "</p>",
+                            nil,
+                            "<p>You need to be interviewed for this job. Check Discord Tower's for openings.</p>",
+                            v.name,
+                            v.id
+                        )
+                    else
+                        menu:addOption(
+                            "<p style='color: red'>" .. k .. "</p>",
+                            m_jobs,
+                            "<p>TESTING 1 2 3 TEST TEST TESTINNNNGGG!</p>",
+                            v.name,
+                            v.id
+                        )
+                    end
                     i = i + 1
                 end
             end
@@ -193,12 +214,23 @@ function vRPjobs.getCurrentJob()
     if (#query < 1) then
         return "Unemployed"
     end
+    return query[1].job
+end
 
+function vRPjobs.getCurrentJobByUser(user)
+    local query = exports["GHMattiMySQL"]:QueryResult("SELECT * FROM user_jobs WHERE cid=@cid", {cid = user.cid})
+    if (#query < 1) then
+        return "Unemployed"
+    end
     return query[1].job
 end
 
 function sqlInfoCallback(msg)
     print(msg)
+end
+
+function vRPjobs.setSourceCurrentJob(sourceid, job)
+    vRPjobs.setCurrentJob(vRP.users_by_source[sourceid], job)
 end
 
 function vRPjobs.setCurrentJob(user, job)
@@ -210,6 +242,23 @@ function vRPjobs.setCurrentJob(user, job)
     end
     exports["GHMattiMySQL"]:QueryAsync(querystring, {cid = user.cid, job = job, last = os.time(), callback = sqlInfoCallback("success")})
 end
+
+function vRPjobs.trySetJob(user, job)
+    local querystring = ""
+    if DoesCIDJobExist(user.cid) then
+        if vRPjobs.getCurrentJobByUser(user) == job then return end
+        querystring = "UPDATE user_jobs SET job=@job, level=1, xp=0, last=@last WHERE cid=@cid"
+    else
+        querystring = "INSERT INTO user_jobs (cid, job, level, xp, last) VALUES (@cid, @job, 1, 0, @last)"
+    end
+    exports["GHMattiMySQL"]:QueryAsync(querystring, {cid = user.cid, job = job, last = os.time(), callback = sqlInfoCallback("success")})
+    vRPjobsC._setJob(user.source, job)
+end
+
+RegisterNetEvent("jobs:setEmergencyJob")
+AddEventHandler("jobs:setEmergencyJob", function(job)
+    vRPjobs.trySetJob(vRP.users_by_source[source], job)
+end)
 
 --[[
     !
@@ -346,7 +395,7 @@ function vRPjobs.createLoan(bankerid, type, amount, interest, weeks)
 
     -- Success
     local currentDebt = amount/weeks + amount/weeks*interest
-    local querystring = "INSERT INTO fivem.loans (banker, client, type, amount, amountOwed, interest, currentDebt, weeks, end, nextDue) VALUES (@banker, @client, @type, @amount, @amount, @interest, @currentDebt, @weeks, TIMESTAMPADD(WEEK, @weeks, CURRENT_TIMESTAMP), TIMESTAMPADD(WEEK, 1, CURRENT_TIMESTAMP))"
+    local querystring = "INSERT INTO loans (banker, client, type, amount, amountOwed, interest, currentDebt, weeks, end, nextDue) VALUES (@banker, @client, @type, @amount, @amount, @interest, @currentDebt, @weeks, TIMESTAMPADD(WEEK, @weeks, CURRENT_TIMESTAMP), TIMESTAMPADD(WEEK, 1, CURRENT_TIMESTAMP))"
     exports["GHMattiMySQL"]:Query(querystring, {banker = cid, client = client.cid, type = type, amount = amount, interest = interest, currentDebt = currentDebt, weeks = weeks})
 end
 
@@ -370,6 +419,19 @@ end
 function vRPjobs.taxiDeconstruct()
     local user = vRP.users_by_source[source]
     user:removeGroup("taxi")
+end
+
+-- * tow
+function vRPjobs.towConstruct()
+    local user = vRP.users_by_source[source]
+    if not user:hasGroup("repair") then
+        user:addGroup("repair")
+    end
+end
+
+function vRPjobs.towDeconstruct()
+    local user = vRP.users_by_source[source]
+    user:removeGroup("repair")
 end
 
 RegisterNetEvent("jobs:paybackWeekly")
@@ -446,4 +508,8 @@ AddEventHandler("jobs:paybackTotal", function(loanID, loan, value)
         msg = "You have fully paided back your loan. You were paid back ~g~"..overflow.."$~w~."
         vRP.EXT.Base.remote._notifyPicture(user.source, "CHAR_BANK_MAZE", 2, "Maze Bank", "~r~Loan Payment Denied", msg)
     end
+end)
+
+exports('getJob', function(sourcePlayer)
+    return vRPcopsC.getCurrentJob(sourcePlayer)
 end)

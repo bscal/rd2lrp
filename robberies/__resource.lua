@@ -18,12 +18,6 @@ files {
     'public/main.js',
     'public/style.css',
     "public/cursor.png",
-    "lib/Luaoop.lua",
-    "lib/Tunnel.lua",
-    "lib/Proxy.lua",
-    "lib/IDManager.lua",
-    "lib/ActionDelay.lua",
-    "lib/Luang.lua",
     "client.lua",
     "client-stores.lua",
     "client-banks.lua"

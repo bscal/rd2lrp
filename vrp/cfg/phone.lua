@@ -53,22 +53,22 @@ cfg.phone_call_css = [[
 -- alert_notify (notification received when an alert is sent)
 -- notify (notification when sending an alert)
 cfg.services = {
---["police"] = {
---  map_entity = {"PoI", {blip_id = 304, blip_color = 38}},
---  alert_time = 300, -- 5 minutes
---  alert_permission = "police.service",
---  alert_notify = "~r~Police alert:~n~~s~",
---  notify = "~b~You called the police.",
---  answer_notify = "~b~The police is coming."
---},
---["emergency"] = {
---  map_entity = {"PoI", {blip_id = 153, blip_color = 1}},
---  alert_time = 300, -- 5 minutes
---  alert_permission = "emergency.service",
---  alert_notify = "~r~Emergency alert:~n~~s~",
---  notify = "~b~You called the emergencies.",
---  answer_notify = "~b~The emergencies are coming."
---},
+  ["police"] = {
+  map_entity = {"PoI", {blip_id = 304, blip_color = 38}},
+  alert_time = 300, -- 5 minutes
+  alert_permission = "police.service",
+  alert_notify = "~r~Police alert:~n~~s~",
+  notify = "~b~You called the police.",
+  answer_notify = "~b~The police is coming."
+  },
+  ["emergency"] = {
+  map_entity = {"PoI", {blip_id = 153, blip_color = 1}},
+  alert_time = 300, -- 5 minutes
+  alert_permission = "emergency.service",
+  alert_notify = "~r~Emergency alert:~n~~s~",
+  notify = "~b~You called the emergencies.",
+  answer_notify = "~b~The emergencies are coming."
+  },
   ["taxi"] = {
     map_entity = {"PoI", {blip_id = 198, blip_color = 5}},
     alert_time = 300,

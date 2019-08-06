@@ -28,7 +28,7 @@ Citizen.CreateThread(
                 if dist < 2.0 then
                     drawTxt(0.5, 0.8, 1.0, 1.0, 1.0, "~y~Select Job. ~p~H", 255, 255, 255, 255)
                     if IsControlJustPressed(0, 74) then
-                        if exports["cops"]:isEmergencyJob() then
+                        if exports["vrp"]:isEmergencyJob() then
                             currentJob = "Emergency Worker"
                         elseif not currentJob then
                             currentJob = "Unemployed"
@@ -80,6 +80,14 @@ local realtor = {}
 local insuranceSalesman = {}
 local lawyer = {}
 local judge = {}
+function judge.constructor()
+    vRPjobsS._judgeConstruct()
+end
+
+function judge.deconstructor()
+    vRPjobsS._judgeDeconstruct()
+end
+
 local judicialAssistant = {}
 
 local taxi = {}
@@ -92,6 +100,14 @@ function taxi.deconstructor()
 end
 
 local tow = {}
+function tow.constructor()
+    vRPjobsS._towConstruct()
+end
+
+function tow.deconstructor()
+    vRPjobsS._towDeconstruct()
+end
+
 local chef = {}
 local armsDealer = {}
 local IT = {}
@@ -129,6 +145,22 @@ function vRPjobs._setJob(job)
     vRP.EXT.Base.notify("You have been hired as an " .. job .. ".")
 end
 
+
+RegisterNetEvent("vrp:playerReady")
+AddEventHandler("vrp:playerReady", function(user)
+    currentJob = vRPjobsS.getCurrentJob()
+
+    if exports["vrp"]:isEmergencyJob() then
+        currentJob = "Emergency Worker"
+    elseif not currentJob then
+        currentJob = "Unemployed"
+    end
+
+    if jobs[currentJob] ~= nil and jobs[currentJob].onReady() ~= nil then
+        jobs[currentJob].onReady()
+    end
+end)
+
 -- * Jobs Update Loop
 Citizen.CreateThread(
     function()
@@ -137,8 +169,8 @@ Citizen.CreateThread(
             if not currentJob or not jobs[currentJob] or not jobs[currentJob].update() then
                 return
             end
-            jobs[currentJob].update()
 
+            jobs[currentJob].update()
         end
     end
 )
@@ -148,44 +180,42 @@ Citizen.CreateThread(
         while true do
             Citizen.Wait(1000 * 60 * 30) -- 30 minutes
 
-            currentJob = vRPjobsS.getCurrentJob()
-
-            if exports["cops"]:isEmergencyJob() then
-                currentJob = "Emergency Worker"
-            elseif not currentJob then
-                currentJob = "Unemployed"
-            end
-
             vRPjobsS._paycheck(currentJob)
         end
     end
 )
 
-RegisterCommand(
-    "myjob",
-    function(source, args, rawCommand)
-        if exports["cops"]:isEmergencyJob() then
-            currentJob = "Emergency Worker"
-        elseif not currentJob then
-            currentJob = "Unemployed"
-        end
-        TriggerEvent(
-            "chat:addMessage",
-            {
-                color = {255, 255, 255},
-                multiline = true,
-                args = {"Your job is", currentJob}
-            }
-        )
-    end,
-    false
+RegisterCommand("myjob", function(source, args, rawCommand)
+   TriggerEvent("chat:addMessage",
+       {
+           color = {255, 255, 255},
+           multiline = true,
+           args = {"Your job is", currentJob}
+       }
+   )
+end,false
 )
+
+RegisterCommand("setUserJob", function(source, args, rawCommand)
+    local msg
+    if exports["vrp"]:isAdmin() then
+        vRPjobsS._setSourceCurrentJob(tonumber{args[1], args[2]})
+        msg = "Set player ("..args[1]..") job to "..args[2]
+    else
+        msg = "You do not have access to this command."
+    end
+    TriggerEvent("chat:addMessage",{
+        color = {255, 0, 0},
+        multiline = true,
+        args = {msg}
+    })
+end, false)
 
 RegisterCommand(
     "setjob",
     function(source, args, rawCommand)
         local msg
-        if exports["cops"]:isAdmin() then
+        if exports["vrp"]:isAdmin() then
             msg = "Setting job to " .. args[1]
             TriggerEvent("jobs:setCurrentJob", args[1])
         end
@@ -202,12 +232,13 @@ RegisterCommand(
 )
 
 RegisterNetEvent("jobs:setCurrentJob")
-AddEventHandler(
-    "jobs:setCurrentJob",
-    function(job)
-        currentJob = job
-    end
-)
+AddEventHandler("jobs:setCurrentJob", function(job)
+    currentJob = job
+end)
+
+function vRPjobs.getCurrentJob()
+    return currentJob
+end
 
 function cmdHelp(msg)
     TriggerEvent("chat:addMessage", {

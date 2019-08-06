@@ -16,13 +16,9 @@ function setBankBalance (value)
 end
 
 RegisterNetEvent('vrp:playerReady')
-AddEventHandler('vrp:playerReady', function(playerData)
-      local accounts = playerData.accounts or {}
-      for index, account in ipairs(accounts) do 
-            if account.name == 'bank' then
-                  setBankBalance(account.money)
-                  break
-            end
+AddEventHandler('vrp:playerReady', function(user, data)
+      if data.bank ~= nil then
+            setBankBalance(data.bank)
       end
 end)
 

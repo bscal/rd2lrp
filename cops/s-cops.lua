@@ -575,3 +575,15 @@ AddEventHandler(
         TriggerClientEvent("chatMessage", -1, "ID", {255, 255, 255}, "Name: " .. id)
     end
 )
+
+exports('isAdmin', function(sourcePlayer)
+    return vRPcopsC.isAdmin(sourcePlayer)
+end)
+
+exports('copsIsCop', function(sourcePlayer)
+    return vRPcopsC.isCop(sourcePlayer)
+end)
+
+exports('copsIsEMS', function(sourcePlayer)
+    return vRPcopsC.isEMS(sourcePlayer)
+end)

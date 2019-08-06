@@ -1,4 +1,3 @@
-
 vRPclient = Tunnel.getInterface("vRP", "cops")
 vRPCopsS = Tunnel.getInterface("cops", "cops")
 
@@ -117,6 +116,7 @@ AddEventHandler('isCop', function()
         return
     end
     isCop = true
+    TriggerServerEvent("jobs:setEmergencyJob", "Emergency Worker")
     TriggerEvent('chat:addMessage', {
         color = {0, 0, 255},
         multiline = true,
@@ -130,6 +130,7 @@ AddEventHandler('isEMS', function()
         return
     end
     isEMS = true
+    TriggerServerEvent("jobs:setEmergencyJob", "Emergency Worker")
     TriggerEvent('chat:addMessage', {
          color = {255, 0, 0},
         multiline = true,
@@ -290,7 +291,7 @@ Citizen.CreateThread(function()
 		if (handCuffed == true) then
 			local myPed = PlayerPedId()
 			local animation = 'idle'
-			local flags = 50				
+			local flags = 50
 			
 			while(IsPedBeingStunned(myPed, 0)) do
 				ClearPedTasksImmediately(myPed)
@@ -415,7 +416,7 @@ RegisterCommand('spike', function(source, args, rawCommand)
 end)
 
 RegisterCommand('removeveh', function(source, args, rawCommand)
-    if isCop then
+    if isAnAdmin then
         DropVehicle()
     end
 end)
@@ -1128,6 +1129,18 @@ function Draw3DText(x, y, z, text)
         AddTextComponentString(text)
         DrawText(_x,_y)
     end
+end
+
+function vRPCops.isAdmin()
+    return isAnAdmin
+end
+
+function vRPCops.isCop()
+    return isCop
+end
+
+function vRPCops.isEMS()
+    return isEMS
 end
 
 exports('isEmergencyJob', function()

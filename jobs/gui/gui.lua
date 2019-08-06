@@ -68,7 +68,7 @@ RegisterNUICallback(
 RegisterNUICallback(
     "onPressed",
     function(data)
-        local payCurrentAmount      = "payCurrentAmount"
+        local payCurrentAmount   = "payCurrentAmount"
         local payTotalAmount        = "payTotalAmount"
         print("Event onPressed fired. Data:", data.loanID, data.loan, data.htmlID, data.value)
 

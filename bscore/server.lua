@@ -22,8 +22,12 @@ function Core.event:characterLoad(user)
             Citizen.Wait(5000)
             if user:isReady() and Core.spawned_users[user] then
                 print(user.name .. " ("..user.source..")" .. " has loaded!")
-                TriggerEvent("vrp:playerReady", user)
-                TriggerClientEvent("vrp:playerReady", user.source, user)
+                local data = {
+                    wallet = user:getWallet(),
+                    bank = user:getBank()
+                }
+                TriggerEvent("vrp:playerReady", user, data)
+                TriggerClientEvent("vrp:playerReady", user.source, user, data)
                 return
             end
         end
@@ -63,6 +67,10 @@ exports('CoreGetUserBySource', function(source)
     return vRP.users_by_source[source]
 end)
 
+exports('getUsers', function(source)
+    return vRP.users
+end)
+
 exports('CoreNotifyClient', function(source, msg)
     vRP.EXT.Base.remote._notify(source, msg)
 end)
@@ -76,8 +84,10 @@ exports('getPlayerID', function(source)
 end)
 
 exports('getCharacterID', function(source)
-    while not vRP.users_by_source[source] do
-        Citizen.Wait(1000)
+    local retries = 0
+    while not vRP.users_by_source[source] or retries > 15 do
+        retries = retries + 1
+        Citizen.Wait(1500)
     end
     return vRP.users_by_source[source].cid
 end)
