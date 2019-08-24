@@ -146,7 +146,6 @@ RegisterNUICallback('escape', function(data, cb)
 end)
 
 RegisterNUICallback('clicked', function(data)
-    print(data['id'])
     if data['id'] == "yours" then
         return
     end

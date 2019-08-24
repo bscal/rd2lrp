@@ -86,8 +86,6 @@ local robTime = 0
 
 function vRPRob.setBankCooldown(name)
     for k, v in pairs(banks) do
-        print(k)
-        print(name)
         if (k == name) then
             v.robbed = true
             resetBankCD(v)
@@ -127,14 +125,17 @@ Citizen.CreateThread(function()
         EndTextCommandSetBlipName(blip)
     end
 
+    local ped
+    local pos
+    local dist
     while true do
-        Citizen.Wait(0)
-        local ped = GetPlayerPed(-1)
-        local pos = GetEntityCoords(ped, true)
+        Citizen.Wait(1)
+        ped = GetPlayerPed(-1)
+        pos = GetEntityCoords(ped, true)
         isNearRob = false
         for k, v in pairs(banks) do
             DrawMarker(1,v.position['x'], v.position['y'], v.position['z'] - 1,0,0,0,0,0,0,0.8,0.8,0.8, robColors.r, robColors.g, robColors.b,robColors.a,0)
-            local dist = Vdist(pos.x, pos.y, pos.z, v.position['x'], v.position['y'], v.position['z'])
+            dist = Vdist(pos.x, pos.y, pos.z, v.position['x'], v.position['y'], v.position['z'])
             if(dist < 3.0) then
                 isNearRob = true
                 if (isNearRob) and not (isBankRobbing) and not (v.robbed) and thermite < 1 then

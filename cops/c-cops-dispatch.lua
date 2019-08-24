@@ -1,134 +1,93 @@
-local deadAlert = false
-local gsr = {}
+local copBlops = {}
 
-AddEventHandler(
-    "playerSpawned",
-    function()
-        deadAlert = true
-    end
-)
-
-local onlineCops = {}
-local onlineBlipSet = {}
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(300)
-            local ped = GetPlayerPed(-1)
-            local x, y, z = table.unpack(GetEntityCoords(ped, true))
-            local streethash = GetStreetNameAtCoord(x, y, z)
-            local street = GetStreetNameFromHashKey(streethash)
-            if (isCop) then
-                if IsEntityDead(ped) and not (deadAlert) then
-                    dispatch(ped, "10-108 Officer down, all patrols respond", "None", street)
-                end
-            else
-                local closestPed = nil
-                if (GetClosestPed(x, y, z, 6, 1, 0, closestPed, 0, 0, -1)) then
-                    dispatch(ped, "901n	Ambulance requested", "None", street)
-                end
-            end
-        end
-    end
-)
-
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(1)
-            local ped = GetPlayerPed(-1)
-            if isCop or isEMS then
-                HandleCopGPS()
-            else
-                ownedVehicle(ped)
-                isShoot(ped)
-            end
-        end
-    end
-)
-
-function vRPCops.sendOnlineCopsToClients(serverCopsSet)
-    onlineCops = serverCopsSet
-end
-
-function HandleCopGPS()
-    -- * Draws other cops for current cop
-
-    for k, v in pairs(onlineCops) do
-        if onlineBlipSet[k] == nil then
-            local blip = AddBlipForCoord(v[1], v[2], v[3])
-            SetBlipSprite(blip, 1)
-            SetBlipAsShortRange(blip, true)
-            SetBlipScale(blip, 1.0)
-            SetBlipDisplay(blip, 2)
-            SetBlipFlashes(blip, false)
-            SetBlipFlashesAlternate(blip, false)
-            SetBlipNameToPlayerName(blip, GetPlayerFromServerId(k))
-            if v[4] == 1 then
-                SetBlipColour(blip, 3)
-            else
-                SetBlipColour(blip, 1)
-            end
-            onlineBlipSet[k] = blip
+RegisterNetEvent("vrp:playerLoaded")
+AddEventHandler("vrp:playerLoaded", function(user, data)
+    local job = data.job
+    if job == "Police"or job == "EMS" then
+        local player = GetPlayerFromServerId(user.source)
+        local blip = AddBlipForEntity(player)
+        SetBlipSprite(blip, 1)
+        SetBlipAsShortRange(blip, true)
+        SetBlipScale(blip, 1.0)
+        SetBlipDisplay(blip, 2)
+        SetBlipFlashes(blip, false)
+        SetBlipFlashesAlternate(blip, false)
+        SetBlipNameToPlayerName(blip, GetPlayerFromServerId(k))
+        if job == "Police" then
+            SetBlipColour(blip, 3)
         else
-            SetBlipCoords(onlineBlipSet[k], v[1], v[2], v[3])
+            SetBlipColour(blip, 1)
         end
+        copBlops[user.source] = blip
     end
+end)
 
-    for k, v in pairs(onlineBlipSet) do
-        if (onlineCops[k] == nil) then
-            print("removing blib...")
-            RemoveBlip(onlineBlipSet[k])
-            onlineBlipSet[k] = nil
-        end
-    end
+RegisterNetEvent("vrp:playerUnloaded")
+AddEventHandler("vrp:playerUnloaded", function(user)
+    RemoveBlip(copBlops[user.source])
+    copBlops[user.source] = nil
+end)
 
-    -- * Sends cop location to server
-    local jobID = 1
-    if isEMS then
-        jobID = 2
-    end
+-- local onlineCops = {}
+-- local onlineBlipSet = {}
 
-    local ped = GetPlayerPed(-1)
-    local x, y, z = table.unpack(GetEntityCoords(ped, true))
-    vRPCopsS._addOnlineCop(jobID, x, y, z)
-end
+-- Citizen.CreateThread(
+--     function()
+--         while true do
+--             Citizen.Wait(1)
+--             if isCop or isEMS then
+--                 HandleCopGPS()
+--             end
+--         end
+--     end
+-- )
 
-function isShoot(ped)
-    if (IsPedShooting(ped)) then
-        dispatch(ped, "10-72 Shots fired", "None", street)
-        table.insert(gsr, true)
-        Citizen.CreateThread(
-            function()
-                Citizen.Wait(60000 * 25)
-                if (gsr[1] ~= nil) then
-                    table.remove(gsr, 1)
-                end
-            end
-        )
-    end
-end
+-- function vRPCops.sendOnlineCopsToClients(serverCopsSet)
+--     onlineCops = serverCopsSet
+-- end
 
-function ownedVehicle(ped)
-    local isInVeh = vRP.EXT.Garage:isInVehicle()
-    if (isInVeh) then
-        local veh = GetVehiclePedIsIn(ped, false)
-        --local cid, model = vRPgarage.getVehicleInfo({veh})
-        --if (cid == nil) then
-        --    dispatch(ped, "10851 Stolen vehicle", "None", street)
-        --elseif not (cid == vRP.cid) then
-        --    dispatch(ped, "10851 Stolen vehicle", "None", street)
-        --end
-        if ((GetEntitySpeed(veh) * 3.6) > 90) then
-            dispatch(ped, "22350 Speeding vehicle", "None", street)
-        end
-    end
-end
+-- function HandleCopGPS()
+--     -- * Draws other cops for current cop
 
-function dispatch(playerid, msg, description, location)
-    vRPCopsS.dispatch({playerid, msg, description, location})
-end
+--     for k, v in pairs(onlineCops) do
+--         if onlineBlipSet[k] == nil then
+--             local blip = AddBlipForCoord(v[1], v[2], v[3])
+--             SetBlipSprite(blip, 1)
+--             SetBlipAsShortRange(blip, true)
+--             SetBlipScale(blip, 1.0)
+--             SetBlipDisplay(blip, 2)
+--             SetBlipFlashes(blip, false)
+--             SetBlipFlashesAlternate(blip, false)
+--             SetBlipNameToPlayerName(blip, GetPlayerFromServerId(k))
+--             if v[4] == 1 then
+--                 SetBlipColour(blip, 3)
+--             else
+--                 SetBlipColour(blip, 1)
+--             end
+--             onlineBlipSet[k] = blip
+--         else
+--             SetBlipCoords(onlineBlipSet[k], v[1], v[2], v[3])
+--         end
+--     end
+
+--     for k, v in pairs(onlineBlipSet) do
+--         if (onlineCops[k] == nil) then
+--             print("removing blib...")
+--             RemoveBlip(onlineBlipSet[k])
+--             onlineBlipSet[k] = nil
+--         end
+--     end
+
+--     -- * Sends cop location to server
+--     local jobID = 1
+--     if isEMS then
+--         jobID = 2
+--     end
+
+--     local ped = GetPlayerPed(-1)
+--     local x, y, z = table.unpack(GetEntityCoords(ped, true))
+--     vRPCopsS._addOnlineCop(jobID, x, y, z)
+-- end
 
 RegisterNetEvent("dispatch")
 AddEventHandler(

@@ -33,11 +33,49 @@ function Garage.User:getVehicleState(model)
   return state
 end
 
+function Garage.User:hasVehicle(model)
+  if self.cdata.vehicles[model] ~= nil then
+    return true
+  end
+  return false
+end
+
+function Garage.User:takeVehicle(model)
+  if self.hasVehicle(model) then
+    self.cdata.vehicles[model]  = nil
+  end
+end
+
+-- if state is null state is set to 1 (in garage)
+function Garage.User:giveVehicle(model, state)
+  if not self.hasVehicle(model) then
+    if not state then state = 1 end
+    self.cdata.vehicles[model]  = state
+  end
+end
+
+function Garage.User:getVehicle(model)
+  return self.cdata.vehicles[model]
+end
+
 -- STATIC
 
 -- get vehicle trunk chest id by character id and model
 function Garage.getVehicleChestId(cid, model)
   return "vehtrunk:"..cid.."_"..model
+end
+
+-- Trades a ownership of a model of vehicle between a seller and buyer
+-- seller: user
+-- buyer: user
+-- model: model of vehicle
+function Garage.transferOwnership(seller, buyer, model)
+  if seller:hasVehicle(model) and not buyer:hasVehicle(model) then
+    local state = seller:getVehicleState(model)
+    seller:takeVehicle(model)
+    Citizen.Wait(1100)
+    buyer:giveVehicle(model, state)
+  end
 end
 
 -- PRIVATE METHODS

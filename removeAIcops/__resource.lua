@@ -1,4 +1,2 @@
-
-
 -- Add a server script
-clientscript_script 'client.lua'
+client_script 'client.lua'

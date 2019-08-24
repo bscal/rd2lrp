@@ -49,7 +49,6 @@ end
 
 function vRPRob.robStore()
     local user = vRP.users_by_source[source]
-    print(user.source)
     math.randomseed(os.time())
     local randomMoney = math.random(25, 322)
     local amount = BASE_STORE_ROB_MONEY + randomMoney

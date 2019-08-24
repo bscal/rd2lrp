@@ -19,7 +19,6 @@ Citizen.CreateThread(function()
                     and GetEntitySpeedVector(veh, true).y > 1.0
                     and speedBuffer[1] > 19.0
                     and (speedBuffer[2] - speedBuffer[1]) > (speedBuffer[1] * 0.4) then
-                        print()
                         local pos = GetEntityCoords(ped)
                         local fw = Fwv(ped)
                         SetEntityCoords(ped, pos.x + fw.x, pos.y + fw.y, pos.z - 0.47, true, true, true)

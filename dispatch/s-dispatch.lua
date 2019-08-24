@@ -1,7 +1,6 @@
 local vRPdispatch = {}
 Tunnel.bindInterface("dispatch", vRPdispatch)
 Proxy.addInterface("dispatch", vRPdispatch)
-local vRPclient = Tunnel.getInterface("vRP", "dispatch")
 local vRPdispatchC = Tunnel.getInterface("dispatch", "dispatch")
 
 function vRPdispatch.ping(x, y, z, time)
@@ -41,8 +40,6 @@ end
 function vRPdispatch.emergencyRespond(number, msg)
     for k, v in pairs(vRP.users) do
         local identity = v.identity
-        print(v.identity.phone)
-        print(number)
         if (identity.phone == number) then
             TriggerClientEvent("callResponse", v.source, msg)
         end

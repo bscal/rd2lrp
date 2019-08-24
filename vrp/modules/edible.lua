@@ -97,8 +97,7 @@ end
 
 local function define_basics(self)
   -- food effect
-  self:defineEffect(
-    "food",
+  self:defineEffect("food",
     function(user, value)
       user:varyVital("food", value)
     end
@@ -152,11 +151,11 @@ local function define_basics(self)
     end
   )
 
-  -- stress
+  -- stress effect
   self:defineEffect(
     "stress",
     function(user, value)
-      TriggerClientEvent("applyStress", user.source, value)
+      TriggerClientEvent("vrp:incrementStress", user.source, value)
     end
   )
 

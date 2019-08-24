@@ -117,10 +117,10 @@ function ShowText(text, x, y)
     DrawText(x, y)
 end
 
-RegisterCommand("openLoans", function(source, args, rawCommand)
-    vRPjobsS.testGUI(true)
-end, false)
+-- RegisterCommand("openLoans", function(source, args, rawCommand)
+--     vRPjobsS.testGUI(true)
+-- end, false)
 
-RegisterCommand("giveloan", function(source, args, rawCommand)
-    vRPjobsS._createLoan(-1, "Personals", 10000, 0.08, 10)
-end, false)
+-- RegisterCommand("giveloan", function(source, args, rawCommand)
+--     vRPjobsS._createLoan(-1, "Personals", 10000, 0.08, 10)
+-- end, false)

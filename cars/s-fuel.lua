@@ -1,7 +1,3 @@
-vRPCars = {}
-Tunnel.bindInterface("cars", vRPCars)
-Proxy.addInterface("cars", vRPCars)
-
 math.randomseed( os.time() )
 cost = math.random() + math.random(1,3);
 local yesMsg = "Gas purchases success. Cost: "

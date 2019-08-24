@@ -25,7 +25,6 @@ vRP:registerExtension(Utils)
 function vRPUtils.saveStressServer(stress)
     local user = vRP.users_by_source[source]
     if not stress then return end
-    print(user.cid, stress)
     local querystring = "INSERT INTO char_data (cid, stress) VALUES (@cid, @stress) ON DUPLICATE KEY UPDATE stress=@stress"
     exports["GHMattiMySQL"]:Query(querystring, {cid = user.cid, stress = stress})
 end
@@ -37,7 +36,6 @@ function vRPUtils.getStress()
     if #query < 1 then
         return 0.0
     end
-    print(query[1].stress)
     return query[1].stress
 end
 

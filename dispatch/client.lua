@@ -1,6 +1,5 @@
-local vRPclient = Tunnel.getInterface("vRP", "dispatch")
-local vRPdispatchS = Tunnel.getInterface("dispatch", "dispatch")
-local vRPdispatch = {}
+ vRPdispatchS = Tunnel.getInterface("dispatch", "dispatch")
+ vRPdispatch = {}
 Tunnel.bindInterface("dispatch", vRPdispatch)
 Proxy.addInterface("dispatch", vRPdispatch)
 
@@ -15,50 +14,6 @@ AddEventHandler(
         deadAlert = true
     end
 )
-
--- blips = {}
--- -- Cop blip update thread
--- Citizen.CreateThread(
---     function()
---         while true do
---             Citizen.Wait(20)
---             if isCop or isEMS then
---                 for k, v in pairs(blips) do
---                     local id = GetPlayerServerId(v.source)
---                     if not DoesEntityExist(id) then
---                         RemoveBlip(v.mblip)
---                     else
---                         SetBlipCoords(v.mblip, v.mx, v.my, v.mz)
---                     end
---                 end
---                 local ped = GetPlayerPed(-1)
---                 local x, y, z = table.unpack(GetEntityCoords(ped, true))
---                 vRPdispatchS.updatePosition(x, y, z)
---             end
---         end
---     end
--- )
-
--- function vRPdispatch.setBlip(officerid, x, y, z)
---     if isCop or isEMS then
---         for k, v in pairs(blips) do
---             if (v.source == officerid) then
---                 v.mx = x
---                 v.my = y
---                 v.mz = z
---             else
---                 local blip = AddBlipForCoord(x, y, z)
---                 SetBlipSprite(blip, 143)
---                 SetBlipColour(blip, 63)
---                 SetBlipAsShortRange(blip, true)
---                 BeginTextCommandSetBlipName("STRING")
---                 AddTextComponentString("Officer")
---                 EndTextCommandSetBlipName(blip)
---                 table.insert(blips, {mblip = blip, source = officerid, mx = x, my = y, mz = z})
---             end
---         end
---     end
--- end
 
 -- Downed Player Thread
 Citizen.CreateThread(
@@ -85,14 +40,11 @@ Citizen.CreateThread(
     end
 )
 
--- seconds
-local canAlert = true
-
 -- Gun Shot Thread
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(16)
+            Citizen.Wait(20)
             local ped = GetPlayerPed(-1)
             if (IsPedShooting(ped)) and not isCop then
                 local x, y, z = table.unpack(GetEntityCoords(ped, true))
@@ -109,7 +61,7 @@ Citizen.CreateThread(
                         end
                     end
                 )
-                Citizen.Wait(7500)
+                Citizen.Wait(6000)
             end
         end
     end
@@ -119,12 +71,11 @@ Citizen.CreateThread(
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(500)
-
             if isCop or isEMS then
-                Citizen.Wait(100000)
-                return
+                break
             end
+
+            Citizen.Wait(1000)
 
             local ped = GetPlayerPed(-1)
             if IsPedInAnyVehicle(ped) then
@@ -139,7 +90,7 @@ Citizen.CreateThread(
 
                     if ((GetEntitySpeed(veh) * 2.236936) > 85) then
                         dispatch(ped, "22350 Speeding vehicle", "None", street)
-                        Citizen.Wait(32000)
+                        Citizen.Wait(50000)
                     elseif IsVehicleStolen(veh) then
                         if (cid == nil) then
                             dispatch(ped, "10851 Stolen vehicle", "None", street)
@@ -147,7 +98,7 @@ Citizen.CreateThread(
                             dispatch(ped, "10851 Stolen vehicle", "None", street)
                         end
                         SetVehicleIsStolen(veh, false)
-                        Citizen.Wait(16000)
+                        Citizen.Wait(20000)
                     end
                 end
             end

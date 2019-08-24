@@ -8,13 +8,12 @@ RegisterCommand(
         local buyerID = tonumber(args[1])
 
         local ped = GetPlayerPed(-1)
-        local veh = GetVehiclePedIsIn(ped, false)
-        local cid, model = vRP.EXT.Garage:getVehicleInfo(veh)
+        local model = vRP.EXT.Garage:getNearestOwnedVehicle(2)
 
-        if cid == nil or model == nil then
+        if model == nil then
             return
         end
 
-        vRPCarsS.transferOwnership(buyerID, veh, cid, model)
+        vRPCarsS._transferOwnership(buyerID, model)
     end
 )

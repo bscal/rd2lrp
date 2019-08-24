@@ -1,9 +1,6 @@
-local Tunnel = module("vrp", "lib/Tunnel")
 local Proxy = module("vrp", "lib/Proxy")
-vRP = Proxy.getInterface("vRP")
-vRPclient = Tunnel.getInterface("vRP","cars")
-vRPCcars = Tunnel.getInterface("cars","cars")
+local vRP = Proxy.getInterface("vRP")
+
 async(function()
-  vRP.loadScript("cars", "s-fuel")
   vRP.loadScript("cars", "s-cars")
 end)

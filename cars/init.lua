@@ -1,7 +1,7 @@
-Proxy = module("lib/Proxy")
-Tunnel = module("lib/Tunnel")
-vRP = Proxy.getInterface("vRP")
+local Proxy = module("lib/Proxy")
+local vRP = Proxy.getInterface("vRP")
+
 async(function()
-    vRP.loadScript("cars", "c-cardoors")
     vRP.loadScript("cars", "client")
+    --vRP.loadScript("cars", "c-cardoors")
 end)

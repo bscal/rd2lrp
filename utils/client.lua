@@ -1,11 +1,11 @@
 vRPclient = Tunnel.getInterface("vRP", "utils")
 vRPUtilS = Tunnel.getInterface("utils", "utils")
+vRPCoreS = Tunnel.getInterface("bscore", "bscore")
 
 vRPUtil = {}
 Tunnel.bindInterface("utils", vRPUtil)
 Proxy.addInterface("utils", vRPUtil)
 
-local status = {}
 local playerStress = 0.0
 local showPlayerList = false
 local markers = {}
@@ -18,27 +18,41 @@ Utils.tunnel = {}
 function Utils.tunnel:initPlayer()
     print("initilizing player...")
     playerStress = vRPUtilS.getStress()
-    Citizen.Wait(1000)
-    local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
-    vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
+    Citizen.CreateThread(function()
+        while true  do
+            Citizen.Wait(1000)
+            print(vRPCoreS.hasLoaded())
+            if vRPCoreS.hasLoaded() then
+                Citizen.Wait(1000)
+                local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
 
-    vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
-    
-    self.loaded = true
+                vRP.EXT.GUI:setProgressBar("bscal:stress", "minimap", "", 150, 80, 150, 1 - playerStress / 100)
+                vRP.EXT.GUI:setProgressBar("bscal:stamina", "minimap", "", 255, 90, 155, stamina)
+                vRP.EXT.GUI:setProgressBar("voice", "minimap", "", 153, 153, 153, 0.5)
+
+                self.loaded = true
+                print("player initilized.")
+                break
+            end
+        end
+    end)
 end
 
 function Utils.tunnel:saveStressClient()
-    print('saving')
     if not self.loaded then return end
     vRPUtilS._saveStressServer(playerStress)
 end
 
 vRP:registerExtension(Utils)
 
+function vRPUtil.getStress()
+    return playerStress;
+end
+
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(0)
+            Citizen.Wait(1)
 
             -- Reduce Vehicle Density
             SetVehicleDensityMultiplierThisFrame(0.7)
@@ -108,7 +122,7 @@ AddEventHandler(
 Citizen.CreateThread(
     function()
         while true do
-            Citizen.Wait(0)
+            Citizen.Wait(1)
             -- draw hidden markers
             for k, v in pairs(markers) do
                 DrawMarker(1, v.x, v.y, v.z - 1, 0, 0, 0, 0, 0, 0, 0.8, 0.8, 0.8, 255, 55, 55, 155, 0)
@@ -120,11 +134,14 @@ Citizen.CreateThread(
 -- * Updates Progress Bars
 Citizen.CreateThread(
     function()
+        local stamina
         while true do
-            Citizen.Wait(32)
-            local stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
-            vRP.EXT.GUI:setProgressBarValue("bscal:stamina", stamina)
-            vRP.EXT.GUI:setProgressBarValue("bscal:stress", playerStress / 100)
+            Citizen.Wait(100)
+            if vRPCoreS.hasLoaded() then
+                stamina = (1 - GetPlayerSprintStaminaRemaining(PlayerId()) / 100)
+                vRP.EXT.GUI:setProgressBarValue("bscal:stamina", stamina)
+                vRP.EXT.GUI:setProgressBarValue("bscal:stress", playerStress / 100)
+            end
         end
     end
 )
@@ -133,46 +150,45 @@ Citizen.CreateThread(
 Citizen.CreateThread(
     function()
         -- * Stress Level effects
-        local STRESSED = 50
-        local VERY_STRESSED = 75
-        local PANIC = 96
+        local STRESSED = 49
+        local VERY_STRESSED = 74
+        local PANIC = 95
 
         math.randomseed(GetGameTimer())
-        while true do
-            Citizen.Wait(1000 * 60)
-            playerStress = playerStress + 0.5
 
-            local rand = math.random(0, 1000)
+        local rand
+        local ped
+        exports['mythic_notify']:DoHudText('type', 'message')
+        while true do
+            Citizen.Wait(1000 * 30)
+
+            playerStress = playerStress + 0.25
+            ped = GetPlayerPed(-1)
+
             if playerStress > PANIC then
                 ShakeGameplayCam("JOLT_SHAKE", 3.0)
+                SetFlash(0, 0, 100, 5000, 100)
 
-                local ped = GetPlayerPed(-1)
-                print(rand)
-                if rand > 900 then
-                    SetEntityHealth(ped, 100)
-                    playerStress = 50
-                    exports.pNotify:SendNotification(
-                        {text = "<b style='color:red'>[Status]</b> You have passed out from being stressed", timeout = 7500}
-                    )
+                rand = math.random(0, 1000)
+                if rand > 950 then
+                    SetEntityHealth(ped, 0)
+                    exports['mythic_notify']:DoHudText('inform', 'You have passed out from being over stressed.')
                 end
-                exports.pNotify:SendNotification(
-                    {text = "<b style='color:red'>[Status]</b> You are extremely distressed", timeout = 7500}
-                )
+                exports['mythic_notify']:DoHudText('inform', 'You are noticeably anxious.')
             elseif playerStress > VERY_STRESSED then
                 ShakeGameplayCam("JOLT_SHAKE", 2.0)
+                SetFlash(0, 0, 100, 2000, 100)
 
-                local ped = GetPlayerPed(-1)
-                if GetEntityHealth(ped) > 130 and rand < 300 then
+                if GetEntityHealth(ped) > 100 then
                     ApplyDamageToPed(ped, 5, false)
                 end
-                exports.pNotify:SendNotification(
-                    {text = "<b style='color:red'>[Status]</b> You are extremely distressed", timeout = 7500}
-                )
+
+                exports['mythic_notify']:DoHudText('inform', 'You are stressed.')
             elseif playerStress > STRESSED then
                 ShakeGameplayCam("JOLT_SHAKE", 1.0)
-                exports.pNotify:SendNotification(
-                    {text = "<b style='color:red'>[Status]</b> You feel very anxious", timeout = 7500}
-                )
+                SetFlash(0, 0, 100, 500, 100)
+
+                exports['mythic_notify']:DoHudText('inform', 'You are noticeably anxious.')
             else
                 ShakeGameplayCam("JOLT_SHAKE", 0.0)
             end
@@ -182,58 +198,85 @@ Citizen.CreateThread(
 
 -- vRP Edible Client Side Events
 RegisterNetEvent("applyArmour")
-AddEventHandler(
-    "applyArmour",
-    function(value)
-        AddArmourToPed(GetPlayerPed(-1), value)
-    end
-)
+AddEventHandler("applyArmour", function(value)
+    AddArmourToPed(GetPlayerPed(-1), value)
+end)
 
 RegisterNetEvent("applyHigh")
-AddEventHandler(
-    "applyHigh",
-    function(value)
-        ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 2.0)
-        Citizen.SetTimeout(
-            20000,
-            function()
-                ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 0.0)
-            end
-        )
-    end
-)
+AddEventHandler("applyHigh",function(value)
+    ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 2.0)
+    Citizen.SetTimeout(
+        10000 * value,
+        function()
+            ShakeGameplayCam("FAMILY5_DRUG_TRIP_SHAKE", 0.0)
+        end
+    )
+end)
 
 RegisterNetEvent("runSpeed")
-AddEventHandler(
-    "runSpeed",
-    function(value)
-        local multiplier = value.m
-        print(value.m, value.t)
-        if multiplier > 1.49 then
-            multiplier = 1.49
-        end
-        SetRunSprintMultiplierForPlayer(PlayerId(), multiplier)
-        Citizen.SetTimeout(
-            value.t * 1000,
-            function()
-                SetRunSprintMultiplierForPlayer(PlayerId(), 1.0)
-            end
-        )
+AddEventHandler("runSpeed", function(value)
+    local multiplier = value.multiplier
+    if multiplier > 1.49 then
+        multiplier = 1.49
     end
-)
+    SetRunSprintMultiplierForPlayer(PlayerId(), multiplier)
+    Citizen.SetTimeout(
+        value.time * 1000,
+        function()
+            SetRunSprintMultiplierForPlayer(PlayerId(), 1.0)
+        end
+    )
+end)
 
-local drunkness = 0
-local maxDrunk = 200
-local lightDrunk = 25
-local medDrunk = 50
-local heavyDrunk = 100
+function loanAnimSet(style)
+    RequestAnimSet(style)
+    while (not HasAnimSetLoaded(style)) do
+        Citizen.Wait(100)
+    end
+end
+
+local drunkness = 0.0
+local maxDrunk = 200.0
+
+-- drunkness degrade
+Citizen.CreateThread(function()
+    local lightDrunk = 25.0 
+    local medDrunk = 50.0
+    local heavyDrunk = 100.0
+    local ped
+    while true do
+        Citizen.Wait(1000)
+        if drunkness > 0.0 then
+            ped = GetPlayerPed(-1)
+            drunkness = drunkness - 0.25
+
+            if (drunkness > lightDrunk) then
+                loanAnimSet("MOVE_M@DRUNK@SLIGHTLYDRUNK")
+                SetPedMovementClipset(ped, "MOVE_M@DRUNK@SLIGHTLYDRUNK", 1.0)
+                RemoveAnimSet("MOVE_M@DRUNK@SLIGHTLYDRUNK")
+            elseif (drunkness > medDrunk) then
+                loanAnimSet("MOVE_M@DRUNK@MODERATEDRUNK")
+                SetPedMovementClipset(ped, "MOVE_M@DRUNK@MODERATEDRUNK", 1.0)
+                RemoveAnimSet("MOVE_M@DRUNK@MODERATEDRUNK")
+            elseif (drunkness > heavyDrunk) then
+                loanAnimSet("MOVE_M@DRUNK@VERYDRUNK")
+                SetPedMovementClipset(ped, "MOVE_M@DRUNK@VERYDRUNK", 1.0)
+                RemoveAnimSet("MOVE_M@DRUNK@VERYDRUNK")
+            end
+
+        elseif drunkness == 0. then
+            drunkness = -1
+            changeWalkStyle("default")
+        end
+    end
+end)
 
 RegisterNetEvent("applyDrunk")
 AddEventHandler(
     "applyDrunk",
     function(value)
         if (drunkness + value > maxDrunk) then
-            return
+            drunkness = maxDrunk
         end
         drunkness = drunkness + value
     end
@@ -254,46 +297,6 @@ AddEventHandler(
     end
 )
 
--- drunkness degrade
-Citizen.CreateThread(
-    function()
-        while true do
-            Citizen.Wait(2500)
-            local ped = GetPlayerPed(-1)
-            if drunkness > 0 then
-                drunkness = drunkness - 1
-
-                if (drunkness > lightDrunk) then
-                    RequestAnimSet("MOVE_M@DRUNK@SLIGHTLYDRUNK")
-                    while (not HasAnimSetLoaded("MOVE_M@DRUNK@SLIGHTLYDRUNK")) do
-                        Citizen.Wait(100)
-                    end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@SLIGHTLYDRUNK", 1.0)
-                elseif (drunkness > medDrunk) then
-                    RequestAnimSet("MOVE_M@DRUNK@MODERATEDRUNK")
-                    while (not HasAnimSetLoaded("MOVE_M@DRUNK@MODERATEDRUNK")) do
-                        Citizen.Wait(100)
-                    end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@MODERATEDRUNK", 1.0)
-                elseif (drunkness > heavyDrunk) then
-                    RequestAnimSet("MOVE_M@DRUNK@VERYDRUNK")
-                    while (not HasAnimSetLoaded("MOVE_M@DRUNK@VERYDRUNK")) do
-                        Citizen.Wait(100)
-                    end
-                    SetPedMovementClipset(ped, "MOVE_M@DRUNK@VERYDRUNK", 1.0)
-                end
-            elseif drunkness == 0 then
-                drunkness = -1
-                RequestAnimSet("move_m@casual@d")
-                while (not HasAnimSetLoaded("move_m@casual@d")) do
-                    Citizen.Wait(100)
-                end
-                SetPedMovementClipset(ped, "move_m@casual@d", 1.0)
-            end
-        end
-    end
-)
-
 function drawTxt(x, y, width, height, scale, text, r, g, b, a)
     SetTextFont(0)
     SetTextProportional(0)
@@ -308,8 +311,7 @@ function drawTxt(x, y, width, height, scale, text, r, g, b, a)
     DrawText(x - width / 2, y - height / 2 + 0.005)
 end
 
--- * PedMovementClipset Command
-
+-- PedMovementClipset Command
 local walkStyles = {
     ["brave"] = "move_m@brave",
     ["casual"] = "move_m@casual@d",
@@ -328,61 +330,53 @@ local walkStyles = {
     ["default"] = "default"
 }
 
-RegisterCommand(
-    "walk",
-    function(source, args, rawCommand)
-        if #args < 2 then
-            local str = "Usage: /walk <stylename>. Styles: "
-            for k, _ in pairs(walkStyles) do
-                str = str .. k .. ", "
-            end
-
-            TriggerEvent(
-                "chat:addMessage",
-                {
-                    color = {0, 175, 255},
-                    multiline = false,
-                    args = {str}
-                }
-            )
-            return
+-- Walk style command
+RegisterCommand("walk", function(source, args, rawCommand)
+    if #args < 2 then
+        local str = "Usage: /walk <stylename>. Styles: "
+        for k, _ in pairs(walkStyles) do
+            str = str .. k .. ", "
         end
 
-        local ped = GetPlayerPed(-1)
-        local style = walkStyles[args[1]]
-
-        if style == "default" then
-            ResetPedMovementClipset(ped)
-            ResetPedStrafeClipset(ped)
-            ResetPedWeaponMovementClipset(ped)
-        else
-            RequestAnimSet(style)
-
-            while not HasAnimSetLoaded(style) do
-                Citizen.Wait(50)
-            end
-        
-            SetPedMovementClipset(ped, style, 1.0)
-            RemoveAnimSet(style)
-        end
+        TriggerEvent(
+            "chat:addMessage",
+            {
+                color = {0, 175, 255},
+                multiline = false,
+                args = {str}
+            }
+        )
+        return
     end
-)
 
---[[
-    COORDS
-    job1 - -258.60546875,-705.55871582032,34.27241897583
-]]
+    changeWalkStyle(walkStyles[args[1]])
+end)
 
--- * This resource is loaded twice once by vrp and once by fxserver.
-    -- * This is loaded regularly through fxserver to that exports can register
-    exports('incrementStress', function(value)
-        playerStress = playerStress + value
-    end)
-    
-    exports('getStress', function()
-        return playerStress
-    end)
-    
-    exports('setStress', function(value)
-        playerStress = value
-    end)
+function changeWalkStyle(style)
+    local ped = GetPlayerPed(-1)
+
+    if style == "default" then
+        ResetPedMovementClipset(ped)
+        ResetPedStrafeClipset(ped)
+        ResetPedWeaponMovementClipset(ped)
+    else
+        RequestAnimSet(style)
+
+        while not HasAnimSetLoaded(style) do
+            Citizen.Wait(50)
+        end
+
+        SetPedMovementClipset(ped, style, 1.0)
+        RemoveAnimSet(style)
+    end
+end
+
+RegisterNetEvent("vrp:incrementStress")
+AddEventHandler("vrp:incrementStress", function(value)
+    playerStress = playerStress + value
+end)
+
+RegisterNetEvent("vrp:setStress")
+AddEventHandler("vrp:setStress", function(value)
+    playerStress = value
+end)

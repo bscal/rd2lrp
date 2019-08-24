@@ -8,7 +8,6 @@ Proxy.addInterface("cops", vRPCops)
 -- Admin and admin permission level
 isAnAdmin = false
 permLevel = 0
-
 -- Cop, Ems, etc permissions
 isCop = false
 isEMS = false
@@ -20,13 +19,10 @@ local dragged = false
 local playerStillDragged = false
 local cuffing = false
 local officerDrag = -1
-local deletegun = false
-local volume = 1.0
 local nearEMS = false;
 local nearMDT = false;
 local mdtLoggedIn = false;
-
-local reviveWait = 120
+local reviveWait = 180
 
 local policeCoords = {{name = "Police Station", x = 441.07467651368, y = -978.25646972656, z = 30.689603805542}, --main
                 {name = "Police Station", x = 1852.9038085938, y = 3690.0769042968, z = 34.267082214356}, --ss
@@ -38,7 +34,7 @@ local emsCoords = {{name = "Hospital", x = 306.724609375, y = -595.47827148438, 
 local emsColors = {r = 41, g = 41, b = 255,a = 125}
 
 Citizen.CreateThread(function()
-    for k, v in ipairs(policeCoords) do
+    for _, v in pairs(policeCoords) do
         local blip = AddBlipForCoord(v.x, v.y, v.z)
         SetBlipSprite(blip, 60)
         SetBlipColour(blip, 3)
@@ -48,7 +44,7 @@ Citizen.CreateThread(function()
         EndTextCommandSetBlipName(blip)
     end
 
-    for k, v in ipairs(emsCoords) do
+    for _, v in pairs(emsCoords) do
         local blip = AddBlipForCoord(v.x, v.y, v.z)
         SetBlipSprite(blip, 61)
         SetBlipColour(blip, 1)
@@ -58,15 +54,19 @@ Citizen.CreateThread(function()
         EndTextCommandSetBlipName(blip)
     end
 
+    local ped
+    local pos
+    local dist
+
     while true do
-        Citizen.Wait(8)
-        local ped = GetPlayerPed(-1)
-        local pos = GetEntityCoords(ped, true)
+        Citizen.Wait(1)
 
-        for k, v in ipairs(policeCoords) do
+        ped = GetPlayerPed(-1)
+        pos = GetEntityCoords(ped, true)
+
+        for _, v in pairs(policeCoords) do
             DrawMarker(1,v.x, v.y, v.z - 1,0,0,0,0,0,0,0.8,0.8,0.8, policeColors.r, policeColors.g, policeColors.b,policeColors.a,0)
-
-            local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
+            dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
             if (dist < 2.0) then
                 mdtLoggedIn = true
             else
@@ -74,41 +74,40 @@ Citizen.CreateThread(function()
             end
         end
 
-        for k, v in ipairs(emsCoords) do
-            DrawMarker(1,v.x, v.y, v.z - 2,0,0,0,0,0,0,0.8,0.8,0.8, emsColors.r, emsColors.g, emsColors.b,emsColors.a, 0)
-            
-            local dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
-            if (dist < 16.0) then
-                Draw3DText(v.x, v.y, v.z + 1.0, "Check into the hospital [space]. Cost 100$.")
-            end
-            if(dist < 2.0) then
-                nearEMS = true
-                if (IsControlJustReleased(0,22)) then
-                    if (IsEntityDead(ped)) then
-                        vRPCopsS.hospitalStay(100)
-                        revivePed(ped)
-                        hospitalAlert()
-                    elseif (GetEntityHealth(ped) < 200) then
-                        vRPCopsS.hospitalStay(150)
-                        SetEntityHealth(ped, 200)
-                        hospitalAlert()
-                    end
-                end
-            elseif (dist > 4.0) and (nearEMS) then
-                nearEMS = false
-            end
-        end
+        -- for k, v in ipairs(emsCoords) do
+        --     DrawMarker(1,v.x, v.y, v.z - 2,0,0,0,0,0,0,0.8,0.8,0.8, emsColors.r, emsColors.g, emsColors.b,emsColors.a, 0)
+        --     dist = Vdist(pos.x, pos.y, pos.z, v.x, v.y, v.z)
+        --     if (dist < 16.0) then
+        --         Draw3DText(v.x, v.y, v.z + 1.0, "Check into the hospital [space]. Cost 100$.")
+        --     end
+        --     if(dist < 2.0) then
+        --         nearEMS = true
+        --         if (IsControlJustReleased(0,22)) then
+        --             if (IsEntityDead(ped)) then
+        --                 vRPCopsS._hospitalStay(100)
+        --                 revivePed(ped)
+        --                 hospitalAlert()
+        --             elseif (GetEntityHealth(ped) < 200) then
+        --                 vRPCopsS._hospitalStay(150)
+        --                 SetEntityHealth(ped, 200)
+        --                 hospitalAlert()
+        --             end
+        --         end
+        --     elseif (dist > 4.0) and (nearEMS) then
+        --         nearEMS = false
+        --     end
+        -- end
     end
 end)
 
-function hospitalAlert()
-    TriggerEvent("pNotify:SendNotification", {
-        text = "<b style='color:#32b338'>Pillbox Hospital</b><br /><p>You were charged 150$ for your stay.</p>",
-        type = "success",
-        timeout = 5000,
-        layout = "topRight"
-    })
-end
+-- function hospitalAlert()
+--     TriggerEvent("pNotify:SendNotification", {
+--         text = "<b style='color:#32b338'>Pillbox Hospital</b><br /><p>You were charged 150$ for your stay.</p>",
+--         type = "success",
+--         timeout = 5000,
+--         layout = "topRight"
+--     })
+-- end
 
 RegisterNetEvent('isCop')
 AddEventHandler('isCop', function()
@@ -116,7 +115,7 @@ AddEventHandler('isCop', function()
         return
     end
     isCop = true
-    TriggerServerEvent("jobs:setEmergencyJob", "Emergency Worker")
+    TriggerServerEvent("jobs:setEmergencyJob", "Police")
     TriggerEvent('chat:addMessage', {
         color = {0, 0, 255},
         multiline = true,
@@ -130,7 +129,7 @@ AddEventHandler('isEMS', function()
         return
     end
     isEMS = true
-    TriggerServerEvent("jobs:setEmergencyJob", "Emergency Worker")
+    TriggerServerEvent("jobs:setEmergencyJob", "EMS")
     TriggerEvent('chat:addMessage', {
          color = {255, 0, 0},
         multiline = true,
@@ -149,7 +148,7 @@ local fullyLoaded = false
 
 AddEventHandler('playerSpawned', function()
     fullyLoaded = true
-    reviveWait = 120
+    reviveWait = 180
     handcuffed = false
     dragged = false
     playerStillDragged = false
@@ -157,8 +156,8 @@ AddEventHandler('playerSpawned', function()
 end)
 
 AddEventHandler('cop:revivePlayer', function()
-    exports["vrp"]:setStress(40)
-    reviveWait = 120
+    TriggerEvent("vrp:setStress", 40.0)
+    reviveWait = 180
 end)
 
 Citizen.CreateThread(function()
@@ -173,7 +172,6 @@ Citizen.CreateThread(function()
             if not isAnAdmin then
                 vRPCopsS._isAdminToClient()
             end
-            
         end
     end
 end)
@@ -275,23 +273,25 @@ Citizen.CreateThread(function()
 	RequestAnimDict('mp_arresting')
 	while not HasAnimDictLoaded('mp_arresting') do
 		Citizen.Wait(50)
-	end	
+	end
 
 	if not IsIplActive("FIBlobby") then
 		RequestIpl("FIBlobbyfake")
 	end
 
 	SetMaxWantedLevel(0)
-	SetWantedLevelMultiplier(0.0)
-   
+    SetWantedLevelMultiplier(0.0)
+    
+    local myPed
+    local animation = 'idle'
+    local flags = 50
+    local ped
     while true do
         Citizen.Wait(5)	
 		DisablePlayerVehicleRewards(PlayerId())
 		
-		if (handCuffed == true) then
-			local myPed = PlayerPedId()
-			local animation = 'idle'
-			local flags = 50
+        if (handCuffed == true) then
+            myPed = PlayerPedId()
 			
 			while(IsPedBeingStunned(myPed, 0)) do
 				ClearPedTasksImmediately(myPed)
@@ -325,8 +325,7 @@ Citizen.CreateThread(function()
 		
 		--Piece of code from Drag command (by Frazzle, Valk, Michael_Sanelli, NYKILLA1127 : https://forum.fivem.net/t/release-drag-command/22174)
 		if dragged then
-			local ped = GetPlayerPed(GetPlayerFromServerId(officerDrag))
-			local myped = PlayerPedId()
+			ped = GetPlayerPed(GetPlayerFromServerId(officerDrag))
 			AttachEntityToEntity(myped, ped, 4103, 11816, 0.48, 0.00, 0.0, 0.0, 0.0, 0.0, false, false, false, false, 2, true)
 			playerStillDragged = true
 		else
@@ -344,9 +343,10 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
+    local ped
 	while true do
 		if dragged then
-			local ped = GetPlayerPed(GetPlayerFromServerId(playerPedDragged))
+			ped = GetPlayerPed(GetPlayerFromServerId(playerPedDragged))
 			plyPos = GetEntityCoords(ped, true)
 			SetEntityCoords(ped, plyPos.x, plyPos.y, plyPos.z)
 		end
@@ -355,11 +355,13 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
+    local veh
+    local x,y,z
 	while true do
 		Citizen.Wait(1)
 		if IsPedInAnyVehicle(PlayerPedId(), false) then
-			local currentVeh = GetVehiclePedIsIn(PlayerPedId(), false)
-			local x,y,z = table.unpack(GetEntityCoords(PlayerPedId(), true))
+			veh = GetVehiclePedIsIn(PlayerPedId(), false)
+			x,y,z = table.unpack(GetEntityCoords(PlayerPedId(), true))
 
 			if DoesObjectOfTypeExistAtCoords(x, y, z, 0.9, GetHashKey("P_ld_stinger_s"), true) then
 				SetVehicleTyreBurst(veh, 0, true, 1000.0)
@@ -653,7 +655,6 @@ end)
 
 RegisterCommand('revive', function()
     if isCop or isEMS then
-        local ped = GetPlayerPed(-1)
         closest, distance = GetClosestPlayer()
 	    if closest ~= nil and DoesEntityExist(GetPlayerPed(closest)) then
             if distance -1 and distance < 3 then
@@ -1033,10 +1034,12 @@ function canAccessMDT()
 end
 
 Citizen.CreateThread(function()
+    local ped
+    local veh
     while true do
         Citizen.Wait(500)
-        local ped = GetPlayerPed(-1)
-        local veh = GetVehiclePedIsTryingToEnter(ped)
+        ped = GetPlayerPed(-1)
+        veh = GetVehiclePedIsTryingToEnter(ped)
         if (veh ~= nil) and (GetVehicleClass(veh) == 18) then
             mdtLoggedIn = true
         else
@@ -1048,6 +1051,7 @@ end)
 -- EMS
 
 Citizen.CreateThread(function()
+    local ped
     while true do
         Citizen.Wait(1000)
         ped = GetPlayerPed(-1)
@@ -1059,10 +1063,11 @@ end)
 
 
 Citizen.CreateThread(function()
+    local ped
     while true do
         Citizen.Wait(0)
-        local ped = GetPlayerPed(-1)
-        if IsEntityDead(ped) then
+        ped = GetPlayerPed(-1)
+        if IsEntityDead(ped) or GetEntityHealth(ped) < 2 then
             SetPlayerInvincible(ped, true)
             SetEntityHealth(ped, 1)
             ShowInfoRevive('~y~You are in a coma. Use /911 to alert authorities. '..tostring(reviveWait)..' seconds to ~p~R ~y~ respawn (2500$)')
@@ -1071,7 +1076,7 @@ Citizen.CreateThread(function()
                     vRPCopsS.hospitalStay(2500)
                     respawnPed(ped, emsCoords[1])
                     RemoveAllPedWeapons(ped, true)
-                    reviveWait = 120
+                    reviveWait = 180
                 end
             end
         end
@@ -1082,7 +1087,6 @@ end)
 
 function revivePed(ped)
 	local playerPos = GetEntityCoords(ped, true)
-    --TriggerEvent('playerSpawned', playerPos.x, playerPos.y, playerPos.z, 90.0)
     NetworkResurrectLocalPlayer(playerPos, true, true, false)
 	SetPlayerInvincible(ped, false)
     ClearPedBloodDamage(ped)
@@ -1101,9 +1105,7 @@ end
 function respawnPed(ped, coords)
 	SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false, true)
 	NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, 90.0, true, false) 
-
 	SetPlayerInvincible(ped, false) 
-	--TriggerEvent('playerSpawned', coords.x, coords.y, coords.z, 90.0)
     ClearPedBloodDamage(ped)
     TriggerEvent('cop:revivePlayer')
 end
@@ -1131,6 +1133,10 @@ function Draw3DText(x, y, z, text)
     end
 end
 
+AddEventHandler('vrp:RequestHandcuffed', function()
+    TriggerEvent("vrp:UpdateHandcuffed", handcuffed)
+end)
+
 function vRPCops.isAdmin()
     return isAnAdmin
 end
@@ -1145,6 +1151,12 @@ end
 
 exports('isEmergencyJob', function()
     return isCop or isEMS
+end)
+exports('isCop', function()
+    return isCop
+end)
+exports('isEMS', function()
+    return isEMS
 end)
 exports('isAdmin', function()
     return isAnAdmin
