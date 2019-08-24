@@ -395,10 +395,10 @@ AudioEngine.prototype.configureVoIP = function(data)
   }
 
   setInterval(function(){
-    _this.connectVoIP();
+    //_this.connectVoIP();  // ENABLE VOIP HERE UNCOMMENT THIS IF YOU NEED TO
   }, 10000);
 
-  _this.connectVoIP();
+  //_this.connectVoIP();
 }
 
 AudioEngine.prototype.connectVoIP = function()
@@ -527,7 +527,7 @@ AudioEngine.prototype.connectVoIP = function()
     });
 
     this.voip_ws.addEventListener("close", function(){
-      console.log("vRP: VoIP disconnected");
+      //console.log("vRP: VoIP disconnected");
     })
   }
 }

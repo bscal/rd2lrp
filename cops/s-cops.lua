@@ -1,8 +1,6 @@
 local vRPCops = {}
 Tunnel.bindInterface("cops", vRPCops)
 Proxy.addInterface("cops", vRPCops)
-
-local vRPclient = Tunnel.getInterface("vRP", "cops")
 local vRPcopsC = Tunnel.getInterface("cops", "cops")
 
 local jail = {1689.2, 2562.7, 46.7}

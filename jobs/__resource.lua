@@ -1,4 +1,5 @@
 dependency "vrp"
+dependency "cops"
 
 server_script {
     "@vrp/lib/utils.lua",
@@ -8,18 +9,18 @@ server_script {
 client_script {
     "@vrp/lib/utils.lua",
     "init.lua",
-    "gui/gui.lua"
+    --"gui/gui.lua"
 }
 
-ui_page("public/index.html")
+--ui_page("public/index.html")
 
 files {
-    "public/index.html",
-    "public/main.js",
-    "public/style.css",
-    "public/monitor.png",
-    "public/logo.png",
-    "public/cursor.png",
+    -- "public/index.html",
+    -- "public/main.js",
+    -- "public/style.css",
+    -- "public/monitor.png",
+    -- "public/logo.png",
+    -- "public/cursor.png",
     "configs/business.lua",
     "client.lua",
     "client-jobs.lua",

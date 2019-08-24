@@ -1,4 +1,5 @@
 dependency "vrp"
+dependency "mythic_progbar"
 
 server_script {
     "@vrp/lib/utils.lua",

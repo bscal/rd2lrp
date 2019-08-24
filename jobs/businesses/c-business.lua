@@ -11,6 +11,7 @@ local offices = {
 }
 local buildings = {}
 local currentJob = "Unemployed"
+local level = 1
 
 local menuOpen = false
 
@@ -28,11 +29,6 @@ Citizen.CreateThread(
                 if dist < 2.0 then
                     drawTxt(0.5, 0.8, 1.0, 1.0, 1.0, "~y~Select Job. ~p~H", 255, 255, 255, 255)
                     if IsControlJustPressed(0, 74) then
-                        if exports["vrp"]:isEmergencyJob() then
-                            currentJob = "Emergency Worker"
-                        elseif not currentJob then
-                            currentJob = "Unemployed"
-                        end
                         vRPjobsS._openJobMenu(currentJob)
                         menuOpen = true
                     end
@@ -80,34 +76,9 @@ local realtor = {}
 local insuranceSalesman = {}
 local lawyer = {}
 local judge = {}
-function judge.constructor()
-    vRPjobsS._judgeConstruct()
-end
-
-function judge.deconstructor()
-    vRPjobsS._judgeDeconstruct()
-end
-
 local judicialAssistant = {}
-
 local taxi = {}
-function taxi.constructor()
-    vRPjobsS._taxiConstruct()
-end
-
-function taxi.deconstructor()
-    vRPjobsS._taxiDeconstruct()
-end
-
 local tow = {}
-function tow.constructor()
-    vRPjobsS._towConstruct()
-end
-
-function tow.deconstructor()
-    vRPjobsS._towDeconstruct()
-end
-
 local chef = {}
 local armsDealer = {}
 local IT = {}
@@ -138,27 +109,43 @@ local jobs = {
     ["Company"] = company
 }
 
-function vRPjobs._setJob(job)
-    jobs[currentJob].deconstructor()
+function vRPjobs._setJob(job, level)
+    if jobs[currentJob].deconstructor() then
+        jobs[currentJob].deconstructor()
+    end
+    vRPjobsS._deconstructor(currentJob)
+
     currentJob = job
-    jobs[currentJob].constructor()
-    vRP.EXT.Base.notify("You have been hired as an " .. job .. ".")
+    level = level
+    
+
+    if jobs[currentJob].constructor() then
+        jobs[currentJob].constructor()
+    end
+    vRPjobsS._constructor(currentJob)
+
+    vRP.EXT.Base.notify("~g~You have been hired as an " .. job )
 end
 
 
+
+RegisterNetEvent("vrp:playerUpdate")
+AddEventHandler("vrp:playerUpdate", function(user, data)
+    currentJob = data.job.job
+    level = data.job.level
+end)
+
 RegisterNetEvent("vrp:playerReady")
 AddEventHandler("vrp:playerReady", function(user)
-    currentJob = vRPjobsS.getCurrentJob()
-
-    if exports["vrp"]:isEmergencyJob() then
-        currentJob = "Emergency Worker"
-    elseif not currentJob then
-        currentJob = "Unemployed"
-    end
+    local data = vRPjobsS.getCurrentJobByUser(user)
+    currentJob = data.job.job
+    level = data.job.level
 
     if jobs[currentJob] ~= nil and jobs[currentJob].onReady() ~= nil then
         jobs[currentJob].onReady()
     end
+
+    vRPjobsS._onReady(currentJob)
 end)
 
 -- * Jobs Update Loop
@@ -211,25 +198,19 @@ RegisterCommand("setUserJob", function(source, args, rawCommand)
     })
 end, false)
 
-RegisterCommand(
-    "setjob",
-    function(source, args, rawCommand)
-        local msg
-        if exports["vrp"]:isAdmin() then
-            msg = "Setting job to " .. args[1]
-            TriggerEvent("jobs:setCurrentJob", args[1])
-        end
-        TriggerEvent(
-            "chat:addMessage",
-            {
-                color = {255, 255, 255},
-                multiline = true,
-                args = {msg}
-            }
-        )
-    end,
-    false
-)
+RegisterCommand("setjob", function(source, args, rawCommand)
+    local msg
+    if exports["vrp"]:isAdmin() then
+        msg = "Setting job to " .. args[1]
+        TriggerEvent("jobs:setCurrentJob", args[1])
+    end
+    TriggerEvent("chat:addMessage",
+    {
+        color = {255, 255, 255},
+        multiline = true,
+        args = {msg}
+    })
+end,false)
 
 RegisterNetEvent("jobs:setCurrentJob")
 AddEventHandler("jobs:setCurrentJob", function(job)
@@ -237,7 +218,7 @@ AddEventHandler("jobs:setCurrentJob", function(job)
 end)
 
 function vRPjobs.getCurrentJob()
-    return currentJob
+    return {job = currentJob, level = level}
 end
 
 function cmdHelp(msg)
@@ -261,3 +242,9 @@ function drawTxt(x, y, width, height, scale, text, r, g, b, a)
     AddTextComponentString(text)
     DrawText(x - width / 2, y - height / 2 + 0.005)
 end
+
+exports('getJobData', function()
+    return {job = currentJob, level = level}
+end)
+
+

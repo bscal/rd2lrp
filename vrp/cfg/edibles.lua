@@ -33,8 +33,8 @@ cfg.edibles = {
   --- fruits
   peach = {"solid", {food = 0.1, water = 0.1}, "Peach", "A peach.", 0.15},
   -- drugs
-  blunt = {"drug", {armour = 25, high = 25, stress = -20}, "Blunt", "A blunt.", 0.1},
-  cocaine = {"drug", {runspeed = {m = 1.25, t = 30}, high = 25, stress = -20}, "Cocaine", "Cocaine.", 0.1},
+  blunt = {"drug", {armour = 25, high = 1.25, stress = -20}, "Blunt", "A blunt.", 0.1},
+  cocaine = {"drug", {runspeed = {multiplier = 1.3, time = 30}, high = 1.5, stress = -10}, "Cocaine", "Cocaine.", 0.1},
   pills = {"drug", {health = 25}, "Pills", "A simple medication.", 0.1}
 }
 

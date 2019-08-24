@@ -1,9 +1,3 @@
-local vRPclient = Tunnel.getInterface("vRP", "dispatch")
-local vRPdispatchS = Tunnel.getInterface("dispatch", "dispatch")
-local vRPdispatch = {}
-Tunnel.bindInterface("dispatch", vRPdispatch)
-Proxy.addInterface("dispatch", vRPdispatch)
-
 local hasKeys = true
 
 RegisterCommand(

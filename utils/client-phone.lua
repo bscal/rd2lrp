@@ -54,7 +54,6 @@ end
 RegisterNUICallback(
     "escape",
     function(data)
-        print("escaped")
         enableGui(false)
     end
 )
@@ -62,7 +61,6 @@ RegisterNUICallback(
 RegisterNUICallback(
     "clicked",
     function(data)
-        print("clicked")
         print(data.id)
 
         local id = data.id

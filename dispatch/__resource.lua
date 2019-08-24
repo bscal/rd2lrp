@@ -1,5 +1,4 @@
 dependency 'vrp'
-dependency 'cops'
 
 server_script {
     "@vrp/lib/utils.lua",
