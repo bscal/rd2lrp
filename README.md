@@ -1,30 +1,40 @@
 # RD2lRP
 GTA V fivem rp server for rd2l players
 
-This relies heavily on vRP framework by ImagicTheCat https://github.com/ImagicTheCat/vRP
+Was built using a modified version of the current vRP framework. ImagicTheCat https://github.com/ImagicTheCat/vRP
 
-Also database driver by https://github.com/GHMatti/FiveM-MySQL
+Database driver by https://github.com/GHMatti/FiveM-MySQL
 
-Also there are several other scrips and models I have gotten from the fivem forums
+Contains a combination of scripts that were created by us or from the fivem forums (Some are modified by us). 
 
-### My Work
-The scripts I have written are 
-* cars
-* cops
-* dispatch
-* jobs
-* robberies
-* utils
+# Status
+The current release is still in development. However you can use an older release that will work but contains several bugs and missing features.
 
-I have heavily modified several of the files from their original state expecielly vRP
+I would recommend not to add/edit/update/remove scripts or files unless you know what you are doing. Many of these scripts are modified from their original forms to work with vRP or other reasons.
 
-I would not look at cops or take cops it was one of my first scripts and stuff and is not implemented well with vRP nor written nicely
+There is a lack of documentation for our scripts or any of our changes to scripts.
 
-Here is the list of server resources for server.cfg and the mysqlstring
+I do not know how much I will continue to work on this project and am not planning on having much support for bugs or features. So use at your own risk.
+
+# Installation
+
+1. Install a server up to the point on the fivem documentation
+2. Clone rd2lrp `git clone `
+3. Rename "rd2lrp" directory to "resources".
+4. Copy the server.cfg infomation below.
+5. Import databases.sql into your sql database.
+
+### server.cfg
+You need to replace you start resources with these and you NEED to change the infomation for your database also. They are both the same but another sql driver was added so it uses 2 different convars.
 <details> 
   <summary>Replace your start resources or mysql strings with this</summary>
-    <br>set mysql_connection_string "server=;database=;userid=;password=;Allow User Variables=True"
+    	<br>set dhost "host"
+	<br>set ddatabase "database"
+	<br>set duser "user"
+	<br>set dpassword "password"
+	<br>set mysql_connection_string "server=host;database=database;userid=user;password=password;Allow User Variables=True"
 	<br>set mysql_debug false
+	<br>
 	<br>#required
 	<br>start mapmanager
 	<br>start chat
@@ -103,4 +113,5 @@ Here is the list of server resources for server.cfg and the mysqlstring
     <br>
 	<br>#Keep this here, it stops some errors
 	<br>restart sessionmanager
+  <summary>
 </details>
