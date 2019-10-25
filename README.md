@@ -19,8 +19,7 @@ I do not know how much I will continue to work on this project and am not planni
 # Installation
 
 1. Install a server up to the point on the fivem documentation
-2. Clone rd2lrp `git clone `
-3. Rename "rd2lrp" directory to "resources".
+2. Clone rd2lrp `git clone https://github.com/bscal/rd2lrp.git resources`
 4. Copy the server.cfg infomation below.
 5. Import databases.sql into your sql database.
 
