@@ -18,10 +18,12 @@ I do not know how much I will continue to work on this project and am not planni
 
 # Installation
 
-1. Install a server up to the point on the fivem documentation
+1. Install a server by following the fivem documentations
+	i. DO NOT clone fivem's `cfx-server-data` repo (It uses the `resouces` directory)
 2. Clone rd2lrp `git clone https://github.com/bscal/rd2lrp.git resources`
-4. Copy the server.cfg infomation below.
-5. Import databases.sql into your sql database.
+3. Copy the server.cfg infomation below.
+4. Import databases.sql into your sql database.
+5. Start the server up normally.
 
 ### server.cfg
 You need to replace you start resources with these and you NEED to change the infomation for your database also. They are both the same but another sql driver was added so it uses 2 different convars.
